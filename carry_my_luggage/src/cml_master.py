@@ -24,33 +24,32 @@ from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSr
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
-class FindBag(smach.State):
+class GraspBag(smach.State):
     def __init__(self):
         smach.State.__init__(self,
-                            outcomes = ['find_finish',
-                                        'find_retry'])
+                            outcomes = ['grasp_finish',
+                                        'grasp_retry'])
 
-        self.lr_sub = rospy.ServiceProxy("/left_right_recognition", String)
-        self.fb_sub = rospy.ServiceProxy('/find_bag_server', FindBagSrv)
+        self.lr_srv = rospy.ServiceProxy("/left_right_recognition", String)
+
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
     def LRCB(self, msg):
         self.lrmsg = msg
 
     def execute(self, userdate):
+        answer = self.grasp().result
         if self.lrmsg == 'right':
-            self.fb_sub('right')
             self.grasp('right')
-            return 'find_finish'
+            return 'grasp_finish'
 
         elif self.lrmsg == 'left':
-            self.fb_sub('left')
             self.grasp('left')
-            return 'find_finish'
+            return 'grasp_finish'
 
-        else:
+        elif answer == False:
             rospy.sleep(0.5)
-            return 'find_retry'
+            return 'grasp_retry'
 
 
 class Chaser(smach.State):
@@ -83,8 +82,8 @@ if __name__=='__main__':
 
     with sm_top:
         smach.StateMachine.add(
-            'FindBag',
-            FindBag(),
+            'GraspBag',
+            GraspBag(),
             transitions={"":""})
 
 
