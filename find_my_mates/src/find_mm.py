@@ -34,8 +34,9 @@ from base_control import BaseControl
 bc = BaseControl()
 # 音声出力関数（サービスクライアント）
 tts_srv = rospy.ServiceProxy('/tts', StrTrg)
+wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
-# 例）左に９０度、0.5の角速度で回転する
+# 例）左に９０度、0.5の角速度で回転する(右は角度マイナス)
 #bc.rotateAngle(90, 0.5)
 
 # 隣の部屋に移動・人接近・人の特徴取得
@@ -67,12 +68,25 @@ class GetFeature(smach.State):
 
     def execute(self, userdata):
         self.features = []
-        self.features = userdata.feature_in
+        self.features = userdata.features
+
+        g_num = userdata.g_num_in
+        g_name = "human_" + str(g_num)
 
         # 隣の部屋（Living_room）まで移動 
+        # tts_srv("Move to guest")
+        wave_srv("/fmm/move_guest")
+        rospy.sleep(0.5)
+        self.navi_srv('living room')
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
+        if g_num == 0:
+            #0(水平)１(下に1°)-1(上に1°)
+            self.head_pub.publish(0)
+            rospy.sleep(1.0)
+
+
         
         # g_numが1だったら、2人目の方を～～
         
