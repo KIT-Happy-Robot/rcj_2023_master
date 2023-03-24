@@ -49,12 +49,14 @@ class FindBag(smach.State):
             return 'find_finish'
 
         else:
+            rospy.sleep(0.5)
             return 'find_retry'
 
 
 class Chaser(smach.State):
     def __init__(self):
         smach.State.__init__(self,outcomes=['chaser_success'])
+
 
 
     def execute(self, userdate):
