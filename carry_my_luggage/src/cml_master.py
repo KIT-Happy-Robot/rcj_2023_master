@@ -17,6 +17,7 @@ from enter_room.srv import EnterRoom
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 from actplan_executor.msg import APExecutorAction, APExecutorGoal
 from find_bag.srv import FindBagSrv
+from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
 
 
 
@@ -25,9 +26,13 @@ tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 class FindBag(smach.State):
     def __init__(self):
-        smach.State.__init__(self,outcomes=['find_finish'])
+        smach.State.__init__(self,
+                            outcomes = ['find_finish',
+                                        'find_retry'])
+
         self.lr_sub = rospy.ServiceProxy("/left_right_recognition", String)
         self.fb_sub = rospy.ServiceProxy('/find_bag_server', FindBagSrv)
+        self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
     def LRCB(self, msg):
         self.lrmsg = msg
@@ -35,13 +40,21 @@ class FindBag(smach.State):
     def execute(self, userdate):
         if self.lrmsg == 'right':
             self.fb_sub('right')
+            self.grasp('right')
+            return 'find_finish'
 
-        return 'find_finish'
+        elif self.lrmsg == 'left':
+            self.fb_sub('left')
+            self.grasp('left')
+            return 'find_finish'
+
+        else:
+            return 'find_retry'
 
 
 class Chaser(smach.State):
     def __init__(self):
-        smach.State.__init__(self,outcomes=[''])
+        smach.State.__init__(self,outcomes=['chaser_success'])
 
 
     def execute(self, userdate):
