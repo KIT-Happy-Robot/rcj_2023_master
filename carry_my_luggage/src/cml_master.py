@@ -13,12 +13,11 @@ import smach_ros
 
 from std_msgs.msg import String, Float64
 from happymimi_navigation.srv import NaviLocation
-from enter_room.srv import EnterRoom
+#from enter_room.srv import EnterRoom
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
-from actplan_executor.msg import APExecutorAction, APExecutorGoal
-from find_bag.srv import FindBagSrv
+#from actplan_executor.msg import APExecutorAction, APExecutorGoal
+#from find_bag.srv import FindBagSrv
 from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
-
 
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
@@ -54,19 +53,20 @@ class GraspBag(smach.State):
 
 class Chaser(smach.State):
     def __init__(self):
-        smach.State.__init__(self,outcomes=['chaser_success'])
+        smach.State.__init__(self,outcomes=['chaser_finish'])
 
-
+        self.chase = rospy.Publisher("/follow_human",String,queue_size=1)
 
     def execute(self, userdate):
-        
+        self.chase('start')
+
         return
 
 
 
 class Return(smach.State):
     def __init__(self):
-        smach.State.__init__(self,outcomes=[''])
+        smach.State.__init__(self,outcomes=['return_finish'])
 
 
     def execute(self, userdate):
@@ -82,19 +82,20 @@ if __name__=='__main__':
 
     with sm_top:
         smach.StateMachine.add(
-            'GraspBag',
+            'GRASPBAG',
             GraspBag(),
-            transitions={"":""})
+            transitions = {"grasp_finish":"CHASER",
+                            "grasp_retry":"GRASPBAG"})
 
 
         smach.StateMachine.add(
-            'Chaser',
+            'CHASER',
             Chaser(),
-            transitions={"":""})
+            transitions={"chaser_finish":"RETURN"})
 
         smach.StateMachine.add(
-            'Return',
+            'RETURN',
             Return(),
-            transitions={"":""})
+            transitions={"return_finish":"finish_sm_top"})
 
     outcome = sm_top.execute()
