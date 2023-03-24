@@ -68,6 +68,7 @@ class Return(smach.State):
     def __init__(self):
         smach.State.__init__(self,outcomes=['return_finish'])
 
+        self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
 
     def execute(self, userdate):
         return
