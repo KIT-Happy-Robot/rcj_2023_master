@@ -26,15 +26,15 @@ tts_srv = rospy.ServiceProxy('/tts', TTS)
 class FindBag(smach.State):
     def __init__(self):
         smach.State.__init__(self,outcomes=['find_finish'])
-        self.sub = rospy.Subscriber("/left_right_recognition", String)
-        self.fb_sub = rospy.Subscriber('/find_bag_server', FindBagSrv)
+        self.lr_sub = rospy.ServiceProxy("/left_right_recognition", String)
+        self.fb_sub = rospy.ServiceProxy('/find_bag_server', FindBagSrv)
 
     def LRCB(self, msg):
         self.lrmsg = msg
 
     def execute(self, userdate):
         if self.lrmsg == 'right':
-            self.fb_sub()
+            self.fb_sub('right')
 
         return 'find_finish'
 
