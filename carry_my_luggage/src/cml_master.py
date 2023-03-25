@@ -79,7 +79,7 @@ class Chaser(smach.State):
     def cmdCB(self, receive_msg):
         self.cmd_sub = receive_msg.linear.x
 
-    def execute(self, userdate):        #バッグを渡す機能まだ書いてない
+    def execute(self, userdate):
         tts_srv("/cml/follow_you")
         self.chase.publish('start')
         while not rospy.is_shutdown():
