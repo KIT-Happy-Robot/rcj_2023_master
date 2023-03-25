@@ -91,7 +91,7 @@ class GetFeature(smach.State):
         self.gf_srv= rospy.ServiceProxy('get_feature_srv', StrToStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
         self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
-        self.cloth_color_srv = rospy.ServiceProxy('	/person_feature/cloth_color',SetStr)
+        self.cloth_color_srv = rospy.ServiceProxy('/person_feature/cloth_color',SetStr)
         self.getold_srv = rospy.ServiceProxy('/person_feature/old', SetStr)
         self.getgender_srv = rospy.Service('/gender_jg', StringToString)
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
