@@ -14,7 +14,9 @@ import time
 
 from std_msgs.msg import String, Float64
 from happymimi_navigation.srv import NaviLocation
+from happymimi_msgs.srv import StrTrg
 #from enter_room.srv import EnterRoom
+from geometry_msgs.msg import Twist
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 #from actplan_executor.msg import APExecutorAction, APExecutorGoal
 #from find_bag.srv import FindBagSrv
@@ -25,7 +27,9 @@ from base_control import BaseControl
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
-class GraspBag(smach.State):
+#2dlidarでバッグを持ったか確認も出来れば書いてみたい
+#(失敗したら後ろに戻ってもう一度バッグを取りに行くようにするといいかも？)
+class GraspBag(smach.State):        
     def __init__(self):
         smach.State.__init__(self,
                             outcomes = ['grasp_finish',
@@ -58,24 +62,51 @@ class Chaser(smach.State):
         smach.State.__init__(self,outcomes=['chaser_finish'])
 
         self.chase = rospy.Publisher("/follow_human",String,queue_size=1)
-        self.yesno = rospy.ServiceProxy('/yes_no', YesNo)
-        self.start_time = time.time()
 
-    def execute(self, userdate):
+        rospy.Subscriber('/find_str', String, self.findCB)
+        rospy.Subscriber('/cmd_vel', Twist, self.cmdCB)
+
+        self.yesno = rospy.ServiceProxy('/yes_no', YesNo)
+        self.arm = rospy.ServiceProxy('/servo/arm', StrTrg)
+
+        self.start_time = time.time()
+        self.find_msg = 'NULL'
+        self.cmd_sub = 0.0
+
+    def findCB(self, receive_msg):
+        self.find_msg = receive_msg.data
+
+    def cmdCB(self, receive_msg):
+        self.cmd_sub = receive_msg.linear.x
+
+    def execute(self, userdate):        #バッグを渡す機能まだ書いてない
         tts_srv("/cml/follow_you")
         self.chase.publish('start')
-        # while not rospy.is_shutdown():
-        #     rospy.sleep(0.1)
-        #     now_time = time.time() - self.start_time
-        #     if self.find_msg == "lost" and now_time >= 5:
-        #         tts_srv("I lost sight of you")
-        #         tts_srv("Is this the location of the car?")
-        #         answer = self.yesno().result
-        #         if answer:
+        while not rospy.is_shutdown():
+            rospy.sleep(0.1)
+            now_time = time.time() - self.start_time
+            if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
+                self.find_msg = 'lost_stop'
+                self.start_time = time.time()
+            elif self.cmd_sub == 0.0 and now_time >= 5.0 and self.find_msg == 'lost_stop':
+                tts_srv("/cml/car_question")
+                answer = self.yesno_srv().result
+                if answer:
+                    self.chaser_pub.publish('stop')
+                    self.base_control.rotateAngle(0, 0)
+                    tts_srv('/cml/give_bag')
+                    self.arm('give')
+                    tts_srv('/cml/return_start')
+                    return 'chaser_finish'
+
+                else:
+                    tts_srv("cml/follow_cont")
+
+            elif self.cmd_sub != 0.0:
+                self.find_msg = 'NULL'
+            else:
+                pass
         
-        return
-
-
 
 class Return(smach.State):
     def __init__(self):
