@@ -94,6 +94,7 @@ class Chaser(smach.State):
                 if answer:
                     self.chaser_pub.publish('stop')
                     self.base_control.rotateAngle(0, 0)
+                    self.base_control.translateDist(-0.3)
                     tts_srv('/cml/give_bag')
                     self.arm('give')
                     tts_srv('/cml/return_start')
@@ -101,6 +102,7 @@ class Chaser(smach.State):
 
                 else:
                     tts_srv("cml/follow_cont")
+                    self.find_msg = "NULL"      #いらないかも
 
             elif self.cmd_sub != 0.0:
                 self.find_msg = 'NULL'
@@ -124,8 +126,6 @@ class Return(smach.State):
         rospy.sleep(0.5)
         tts_srv("/cml/finish_cml")
         return 'return_finish'
-
-
 
 
 
