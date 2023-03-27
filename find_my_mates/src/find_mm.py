@@ -96,6 +96,7 @@ class GetFeature(smach.State):
         self.getgender_srv = rospy.Service('/gender_jg', StringToString)
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
+        self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
         
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
@@ -199,7 +200,10 @@ class GetFeature(smach.State):
             return self.skin_color
             
     def getGlass(self):
+        
     def getLocInfo(self):
+
+        
 
 
     def execute(self, userdata):
@@ -213,7 +217,8 @@ class GetFeature(smach.State):
 
         
         # g_numが1だったら、2人目の方を～～
-        
+        if g_num == 1:
+            
         # g_numが2だったら、3人目の方を～～
 
         # 各ゲストの特徴を保存
@@ -240,21 +245,34 @@ class Tell(smach.State):
         # inputとoutptに気を付ける
         count_num = userdata.g_num_in
         self.sentence_list = userdata.feature_in
-        
+        wave_srv("/fmm/move_operator")
         
         # 首の角度を０度に戻す
         self.head_pub.publish(0)
-        rospy.sleep(1.0)
+        rospy.sleep(0.2)
+        
         # オペレーターへ自律移動
+        self.bc.rotateAngle(110, 0.2)
+        rospy.sleep(0.5)
         self.navi_srv('operator')
+        navi_result = self.navi_srv('operator').result
+        rospy.sleep(0.2)
         #　首を上げる
         self.head_pub.publish(-20)
-
+        rospy.sleep(0.2)
         
         # 取得した名前とそれに紐づけた特徴２つを音声で出力する
-        #
-        # 
-
+        if navi_result:
+            # tts_srv("I'll give you the guest information.")
+            wave_srv('/fmm/start_req')
+        else:
+            # tts_srv("I'm sorry. I couldn't navigate to the operator's location. I will provide the features from here.")
+            wave_srv("/fmm/start_req_here")
+        print self.sentence_list
+        for i in range(len(self.sentence_list)):
+            tts_srv(self.sentence_list[i])
+            i += 1
+            
         return "tell_finish"
 
 
@@ -282,3 +300,7 @@ def smach():
 
 
 if __name__=='__main__':
+    rospy.init_node('find_mm')
+    rospy.loginfo("Start Find My Mates")
+    smach()
+    outcome = sm.execute()
