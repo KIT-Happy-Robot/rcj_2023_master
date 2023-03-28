@@ -20,10 +20,10 @@ from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 #from actplan_executor.msg import APExecutorAction, APExecutorGoal
 #from find_bag.srv import FindBagSrv
 from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
-from base_control import BaseControl
+
 base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, base_path)
-
+from base_control import BaseControl
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
@@ -35,7 +35,7 @@ class GraspBag(smach.State):
                             outcomes = ['grasp_finish',
                                         'grasp_retry'])
 
-        self.lr_srv = rospy.ServiceProxy("/left_right_recognition", String)
+        self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
@@ -45,11 +45,11 @@ class GraspBag(smach.State):
     def execute(self, userdate):
         answer = self.grasp().result
         if self.lrmsg == 'right':
-            self.grasp('right')
+            self.grasp('right', [0.25, 0.4])
             return 'grasp_finish'
 
         elif self.lrmsg == 'left':
-            self.grasp('left')
+            self.grasp('left', [0.25, 0.4])
             return 'grasp_finish'
 
         elif answer == False:
@@ -112,7 +112,7 @@ class Chaser(smach.State):
 
 class Return(smach.State):
     def __init__(self):
-        smach.State.__init__(self,outcomes=['return_finish'])
+        smach.State.__init__(self,outcomes=["return_finish"])
 
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         self.base_control = BaseControl()
@@ -132,9 +132,9 @@ class Return(smach.State):
 if __name__=='__main__':
     rospy.init_node('cml_master')
     rospy.loginfo("Start")
-    sm_top = smach.StateMachine('finish_sm_top')
+    sm = smach.StateMachine(outcomes = ["finish_sm"])
 
-    with sm_top:
+    with sm:
         smach.StateMachine.add(
             'GRASPBAG',
             GraspBag(),
@@ -150,6 +150,6 @@ if __name__=='__main__':
         smach.StateMachine.add(
             'RETURN',
             Return(),
-            transitions={"return_finish":"finish_sm_top"})
+            transitions={"return_finish":"finish_sm"})
 
-    outcome = sm_top.execute()
+    outcome = sm.execute()
