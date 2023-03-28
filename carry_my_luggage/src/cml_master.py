@@ -15,7 +15,6 @@ import time
 from std_msgs.msg import String, Float64
 from happymimi_navigation.srv import NaviLocation
 from happymimi_msgs.srv import StrTrg
-#from enter_room.srv import EnterRoom
 from geometry_msgs.msg import Twist
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 #from actplan_executor.msg import APExecutorAction, APExecutorGoal
