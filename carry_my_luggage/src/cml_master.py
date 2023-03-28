@@ -35,7 +35,7 @@ class GraspBag(smach.State):
                             outcomes = ['grasp_finish',
                                         'grasp_retry'])
 
-        self.lr_srv = rospy.ServiceProxy("/left_right_recognition", String)
+        self.lr_srv = rospy.Subscriber("/left_right_recognition", String)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
@@ -131,25 +131,25 @@ class Return(smach.State):
 
 if __name__=='__main__':
     rospy.init_node('cml_master')
-    rospy.loginfo("Start")
+    rospy.loginfo('Start')
     sm_top = smach.StateMachine('finish_sm_top')
 
     with sm_top:
         smach.StateMachine.add(
             'GRASPBAG',
             GraspBag(),
-            transitions = {"grasp_finish":"CHASER",
-                            "grasp_retry":"GRASPBAG"})
+            transitions = {'grasp_finish':'CHASER',
+                            'grasp_retry':'GRASPBAG'})
 
 
         smach.StateMachine.add(
             'CHASER',
             Chaser(),
-            transitions={"chaser_finish":"RETURN"})
+            transitions={'chaser_finish':'RETURN'})
 
         smach.StateMachine.add(
             'RETURN',
             Return(),
-            transitions={"return_finish":"finish_sm_top"})
+            transitions={'return_finish':'finish_sm_top'})
 
     outcome = sm_top.execute()
