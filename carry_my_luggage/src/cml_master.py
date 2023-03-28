@@ -21,14 +21,15 @@ from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 #from find_bag.srv import FindBagSrv
 from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
 from base_control import BaseControl
-
+base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
+sys.path.insert(0, base_path)
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
 #2dlidarでバッグを持ったか確認も出来れば書いてみたい
 #(失敗したら後ろに戻ってもう一度バッグを取りに行くようにするといいかも？)
-class GraspBag(smach.State):        
+class GraspBag(smach.State):
     def __init__(self):
         smach.State.__init__(self,
                             outcomes = ['grasp_finish',
