@@ -55,20 +55,20 @@ class GraspBag(smach.State):
         if self.lrmsg == 'right':
             self.grasp('right', [0.25, 0.4])
 
-            if self.front_laser_dist >= 0.4:
-                return
+            if self.front_laser_dist < 0.4:
+                return 'grasp_finish'
 
-            elif self.front_laser_dist < 0.4:
-                return
+            elif self.front_laser_dist >= 0.4:
+                return 'grasp_retry'
 
         elif self.lrmsg == 'left':
             self.grasp('left', [0.25, 0.4])
 
-            if self.front_laser_dist >= 0.4:
-                return
+            if self.front_laser_dist < 0.4:
+                return 'grasp_finish'
 
-            elif self.front_laser_dist < 0.4:
-                return
+            elif self.front_laser_dist >= 0.4:
+                return 'grasp_retry'
 
         
         # if self.lrmsg == 'right':
