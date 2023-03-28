@@ -13,17 +13,20 @@ import smach_ros
 import time
 
 from std_msgs.msg import String, Float64
+from sensor_msgs.msg import LaserScan
 from happymimi_navigation.srv import NaviLocation
 from happymimi_msgs.srv import StrTrg
 from geometry_msgs.msg import Twist
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
+from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
 #from actplan_executor.msg import APExecutorAction, APExecutorGoal
 #from find_bag.srv import FindBagSrv
-from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
+
 
 base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, base_path)
 from base_control import BaseControl
+
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
@@ -36,25 +39,49 @@ class GraspBag(smach.State):
                                         'grasp_retry'])
 
         self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
+        self.distance = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
     def LRCB(self, msg):
         self.lrmsg = msg
 
+    def laserCB(self, receive_msg):
+        self.front_laser_dist = receive_msg.ranges[359]
+
+
     def execute(self, userdate):
         answer = self.grasp().result
         if self.lrmsg == 'right':
             self.grasp('right', [0.25, 0.4])
-            return 'grasp_finish'
+
+            if self.front_laser_dist >= 0.4:
+                return
+
+            elif self.front_laser_dist < 0.4:
+                return
 
         elif self.lrmsg == 'left':
             self.grasp('left', [0.25, 0.4])
-            return 'grasp_finish'
 
-        elif answer == False:
-            rospy.sleep(0.5)
-            return 'grasp_retry'
+            if self.front_laser_dist >= 0.4:
+                return
+
+            elif self.front_laser_dist < 0.4:
+                return
+
+        
+        # if self.lrmsg == 'right':
+        #     self.grasp('right', [0.25, 0.4])
+        #     return 'grasp_finish'
+
+        # elif self.lrmsg == 'left':
+        #     self.grasp('left', [0.25, 0.4])
+        #     return 'grasp_finish'
+
+        # elif answer == False:
+        #     rospy.sleep(0.5)
+        #     return 'grasp_retry'
 
 
 class Chaser(smach.State):
