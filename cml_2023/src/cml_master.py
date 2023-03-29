@@ -33,7 +33,9 @@ wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
 class GraspBag(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes = ['grasp_finish', 'grasp_retry'])
+        smach.State.__init__(self,
+                            outcomes = ['grasp_finish',
+                                        'grasp_retry'])
 
         self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
@@ -52,10 +54,17 @@ class GraspBag(smach.State):
     def laserCB(self, receive_msg):
         self.front_laser_dist = receive_msg.ranges[359]
 
+    def subscribeCheck(self):
+        while not self.pose_msg and not rospy.is_shutdown():
+            rospy.loginfo('No pose data available ...')
+            rospy.sleep(0.5)
+
     def execute(self, userdate):
         #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
 
+        self.subscribeCheck()
+        rospy.sleep(1.5)
         print(self.lrmsg)
         while not rospy.is_shutdown():
             if self.lrmsg == 'right':
@@ -65,12 +74,18 @@ class GraspBag(smach.State):
                 break
 
             elif self.lrmsg == 'left':
+<<<<<<< HEAD
                 wave_srv("cml/bag_right")
                 rospy.loginfo('left')
 
+=======
+              #  tts_srv("grasp left one")
+>>>>>>> 274ebe7114f4ea5bb04bd21dcdb9e9cef9ff9bee
                 self.grasp('left', [0.25, 0.4])
                 break
             else: pass
+
+        rospy.sleep(3.0)
 
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
@@ -136,7 +151,7 @@ class Chaser(smach.State):
                 self.start_time = time.time()
             elif self.cmd_sub == 0.0 and now_time >= 5.0 and self.find_msg == 'lost_stop':
                 wave_srv("/cml/car_question")
-                answer = self.yesno_srv().result
+                answer = self.yesno().result
                 if answer:
                     self.chaser_pub.publish('stop')
                     # self.base_control.rotateAngle(0, 0)
@@ -166,7 +181,11 @@ class Return(smach.State):
     def execute(self, userdate):
         rospy.loginfo('Executing state: RETURN')
         rospy.sleep(0.5)
+<<<<<<< HEAD
         # self.base_control.rotateAngle(170, 0.3)
+=======
+        #self.base_control.rotateAngle(170, 0.3)
+>>>>>>> 274ebe7114f4ea5bb04bd21dcdb9e9cef9ff9bee
         rospy.sleep(0.5)
         self.navi('cml_start')
         rospy.sleep(0.5)

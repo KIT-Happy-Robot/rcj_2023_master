@@ -78,7 +78,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-5, 0.5)
+            self.bc.rotateAngle(-5, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = human_0) #g_name
@@ -90,14 +90,14 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-5, 0.5)
+            self.bc.rotateAngle(-5, 0, 0.5, 5)
             for i in range(3):
                 result = self.coord_gen_srv().result
                 print(result)
                 if result:
                     self.ap_srv(data = human_1)
                 else:
-                    self.bc.rotateAngle(-10,1.0)
+                    self.bc.rotateAngle(-10, 0, 1.0, 5)
         
         elif g_num == 2:
             self.head_pub.publish(0)
@@ -106,7 +106,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-80, 0.5)
+            self.bc.rotateAngle(-80, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = human_2) #g_name
@@ -145,6 +145,7 @@ class GetFeature(smach.State):
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
+        self.feature_srv = rospy.ServiceProxy('get_feature_srv', StrToStr)
         
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
@@ -171,23 +172,22 @@ class GetFeature(smach.State):
         # tts_srv("Excuse me. I have a question for you")
         wave_srv("/fmm/start_q")
         
-
+        self.name = "null"
         for i in range(3):
-            name_res = self.gf_srv(req_data = name) # voiceのgetName()の結果(string res_data, bool result)を格納
-            self.guest_name = self.ffv.getName()
-        
-            # getNameがTrueなら
+            name_res = self.feature_srv(req_data = "name")
+            print (name_res.res_data)
             if name_res.result:
-                self.guest_name = name_res.res_data # 返答された名前を格納
+                self.name = name_res.res_data
+                tts_srv("Hi " + self.name)
                 break
-            # 
-            elif i < 3:
-                pass
-            # Falseかつ3回目まできたとき
+            elif i == 3:
+                break
+                # tts_srv("Sorry. I'm going to ask you one more time.")
             else:
-                self.guest_name = "" # 空の名前
-        tts_srv("Hi!" + self.guest_name)
-        return self.guest_name
+                wave_srv("/fmm/ask_again")
+                self.name = "guest"
+        return self.name
+
 
 
     # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
@@ -356,7 +356,7 @@ class Tell(smach.State):
         rospy.sleep(0.2)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(110, 0.2)
+        self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
         self.navi_srv('operator')
         navi_result = self.navi_srv('operator').result
