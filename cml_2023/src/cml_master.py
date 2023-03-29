@@ -59,10 +59,10 @@ class GraspBag(smach.State):
         if self.lrmsg == 'right':
             self.grasp('right', [0.25, 0.4])
 
-            if self.front_laser_dist < 0.4:
+            if self.front_laser_dist > 0.5:
                 return 'grasp_finish'
 
-            elif self.front_laser_dist >= 0.4 and self.GB_count == 0:
+            elif self.front_laser_dist <=0.5 and self.GB_count == 0:
                 rospy.loginfo('Executing state: RETURN')
                 rospy.sleep(0.5)
                 self.base_control.rotateAngle(170, 0.3)
@@ -78,10 +78,10 @@ class GraspBag(smach.State):
         elif self.lrmsg == 'left':
             self.grasp('left', [0.25, 0.4])
 
-            if self.front_laser_dist < 0.4:
+            if self.front_laser_dist > 0.5:
                 return 'grasp_finish'
 
-            elif self.front_laser_dist >= 0.4 and self.GB_count == 0:
+            elif self.front_laser_dist <= 0.5 and self.GB_count == 0:
                 rospy.loginfo('Executing state: RETURN')
                 rospy.sleep(0.5)
                 self.base_control.rotateAngle(170, 0.3)
