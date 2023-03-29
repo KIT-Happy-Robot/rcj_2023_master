@@ -59,31 +59,26 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             if self.lrmsg == 'right':
-               # tts_srv("grasp right one")
+                #tts_srv("grasp right one")
+                rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
 
             elif self.lrmsg == 'left':
-<<<<<<< HEAD
                 wave_srv("cml/bag_right")
-=======
-              #  tts_srv("grasp left one")
->>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
+                rospy.loginfo('left')
+
                 self.grasp('left', [0.25, 0.4])
                 break
             else: pass
 
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
-<<<<<<< HEAD
-=======
 
->>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
         elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
             ###追加
-            self.base_control.rotateAngle(170, 0.3)
             rospy.sleep(0.5)
             self.navi('cml_start')
             rospy.sleep(0.5)
@@ -144,8 +139,8 @@ class Chaser(smach.State):
                 answer = self.yesno_srv().result
                 if answer:
                     self.chaser_pub.publish('stop')
-                    self.base_control.rotateAngle(0, 0)
-                    self.base_control.translateDist(-0.3)
+                    # self.base_control.rotateAngle(0, 0)
+                    # self.base_control.translateDist(-0.3)
                     wave_srv('/cml/give_bag')
                     self.arm('give')
                     wave_srv('/cml/return_start')
@@ -171,7 +166,7 @@ class Return(smach.State):
     def execute(self, userdate):
         rospy.loginfo('Executing state: RETURN')
         rospy.sleep(0.5)
-        self.base_control.rotateAngle(170, 0.3)
+        # self.base_control.rotateAngle(170, 0.3)
         rospy.sleep(0.5)
         self.navi('cml_start')
         rospy.sleep(0.5)
