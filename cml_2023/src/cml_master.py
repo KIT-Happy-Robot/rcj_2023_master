@@ -54,10 +54,17 @@ class GraspBag(smach.State):
     def laserCB(self, receive_msg):
         self.front_laser_dist = receive_msg.ranges[359]
 
+    def subscribeCheck(self):
+        while not self.pose_msg and not rospy.is_shutdown():
+            rospy.loginfo('No pose data available ...')
+            rospy.sleep(0.5)
+
     def execute(self, userdate):
         #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
 
+        self.subscribeCheck()
+        rospy.sleep(1.5)
         print(self.lrmsg)
         while not rospy.is_shutdown():
             if self.lrmsg == 'right':
@@ -71,6 +78,8 @@ class GraspBag(smach.State):
                 break
             else: pass
 
+        rospy.sleep(3.0)
+
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
 
@@ -78,7 +87,6 @@ class GraspBag(smach.State):
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
             ###追加
-            self.base_control.rotateAngle(170, 0.3)
             rospy.sleep(0.5)
             self.navi('cml_start')
             rospy.sleep(0.5)
@@ -136,11 +144,11 @@ class Chaser(smach.State):
                 self.start_time = time.time()
             elif self.cmd_sub == 0.0 and now_time >= 5.0 and self.find_msg == 'lost_stop':
                 wave_srv("/cml/car_question")
-                answer = self.yesno_srv().result
+                answer = self.yesno().result
                 if answer:
                     self.chaser_pub.publish('stop')
-                    self.base_control.rotateAngle(0, 0)
-                    self.base_control.translateDist(-0.3)
+                    # self.base_control.rotateAngle(0, 0)
+                    # self.base_control.translateDist(-0.3)
                     wave_srv('/cml/give_bag')
                     self.arm('give')
                     wave_srv('/cml/return_start')
@@ -166,7 +174,7 @@ class Return(smach.State):
     def execute(self, userdate):
         rospy.loginfo('Executing state: RETURN')
         rospy.sleep(0.5)
-        self.base_control.rotateAngle(170, 0.3)
+        #self.base_control.rotateAngle(170, 0.3)
         rospy.sleep(0.5)
         self.navi('cml_start')
         rospy.sleep(0.5)
