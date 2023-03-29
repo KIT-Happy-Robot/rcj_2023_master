@@ -77,10 +77,12 @@ class GraspBag(smach.State):
         elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
+            ###追加
             self.base_control.rotateAngle(170, 0.3)
             rospy.sleep(0.5)
             self.navi('cml_start')
             rospy.sleep(0.5)
+            ###
             self.GB_count += 1
             return 'grasp_retry'
 
