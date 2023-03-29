@@ -113,8 +113,8 @@ class GetClose(smach.State):
 
         else:
             pass
-        result = self.ap_srv(data = guest_name)
-        print(result)
+        #result = self.ap_srv(data = guest_name)
+        #print(result)
         self.head_pub.publish(0)
         if result:
             return 'get_close_finish'
@@ -315,7 +315,11 @@ class GetFeature(smach.State):
         elif g_num == 2:
             self.f1_sentence = "SkinColor is " + self.getSkinColor()
             #glassのリターン変えたほうがいいかも
+<<<<<<< HEAD
             self.f2_sentence = self.getGlass() + "glass"
+=======
+            self.f2_sentence = "Glass is " + self.getGlass()
+>>>>>>> 703e94afbbdfdf9f98971eca2e5748c7bb5bcfc0
         else:
             return 'get_feature_finish'
         # 各ゲストの特徴を保存
