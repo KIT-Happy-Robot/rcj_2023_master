@@ -68,11 +68,13 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             if self.lrmsg == 'right':
+                rospy.loginfo("right")
                # tts_srv("grasp right one")
                 self.grasp('right', [0.25, 0.4])
                 break
 
             elif self.lrmsg == 'left':
+                rospy.loginfo("left")
               #  tts_srv("grasp left one")
                 self.grasp('left', [0.25, 0.4])
                 break
