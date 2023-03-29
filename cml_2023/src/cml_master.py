@@ -55,7 +55,7 @@ class GraspBag(smach.State):
 
 
     def execute(self, userdate):
-        answer = self.grasp().result
+        #answer = self.grasp().result
         if self.lrmsg == 'right':
             self.grasp('right', [0.25, 0.4])
 
