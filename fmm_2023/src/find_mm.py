@@ -59,7 +59,7 @@ class GetClose(smach.State):
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
 
-    def execute():
+    def execute(self, userdata):
         rospy.loginfo("Executing state: APPROACH_GUEST")
         g_num = userdata.g_num_in
         g_name = "human_" + str(g_num)
@@ -114,8 +114,8 @@ class GetClose(smach.State):
 
         else:
             pass
-        result = self.ap_srv(data = guest_name)
-        print(result)
+        #result = self.ap_srv(data = guest_name)
+        #print(result)
         self.head_pub.publish(0)
         if result:
             return 'get_close_finish'
@@ -300,24 +300,24 @@ class GetFeature(smach.State):
         self.head_pub.publish(-20)
         # tts_srv("Excuse me. I have a question for you")
         wave_srv("/fmm/start_q")
-        self.guest_name = getName()
+        self.guest_name = self.getName()
         #print (self.guest_name)
         self.guest_loc = self.li.getLocInfo("human_" + str(g_num))
         self.gn_sentence = self.guest_name + " is near " + self.guest_loc
         # 使用済みの特徴を使わないようにする
 
         if g_num == 0:
-            self.f1_sentence = "Age is " + getAge()
-            self.f2_sentence = "Gender is " + getGender()
+            self.f1_sentence = "Age is " + self.getAge()
+            self.f2_sentence = "Gender is " + self.getGender()
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
-            self.f1_sentence = "ClothColor is " + getClothColor()
-            self.f2_sentence = "HairColor is " + getHairColor()
+            self.f1_sentence = "ClothColor is " + self.getClothColor()
+            self.f2_sentence = "HairColor is " + self.getHairColor()
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
-            self.f1_sentence = "SkinColor is " + getSkinColor()
+            self.f1_sentence = "SkinColor is " + self.getSkinColor()
             #glassのリターン変えたほうがいいかも
-            self.f2_sentence = "Glass is " + getGlass()
+            self.f2_sentence = "Glass is " + self.getGlass()
         else:
             return 'get_feature_finish'
         # 各ゲストの特徴を保存
@@ -331,7 +331,7 @@ class Tell(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, outcomes = ['tell_finish'],
-                             input_keys = ['g_num_in','features_in']
+                             input_keys = ['g_num_in','features_in'],
                              output_keys = ['g_num_out','features_out'])
         self.navi_srv =  rospy.ServiceProxy('navi_location_server', NaviLocation)
         self.save_srv = rospy.ServiceProxy('/recognition/save', StrTrg)
@@ -367,7 +367,7 @@ class Tell(smach.State):
         else:
             # tts_srv("I'm sorry. I couldn't navigate to the operator's location. I will provide the features from here.")
             wave_srv("/fmm/start_req_here")
-        print self.sentence_list
+        print(self.sentence_list)
         for i in range(len(self.sentence_list)):
             tts_srv(self.sentence_list[i])
             i += 1

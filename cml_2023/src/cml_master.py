@@ -28,7 +28,7 @@ sys.path.insert(0, base_path)
 from base_control import BaseControl
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
-
+wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
 
 class GraspBag(smach.State):
@@ -38,61 +38,49 @@ class GraspBag(smach.State):
                                         'grasp_retry'])
 
         self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
-        self.distance = rospy.Subscriber('/scan', LaserScan, self.laserCB)
+        self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         self.base_control = BaseControl()
-
+        self.lrmsg = ""
+        self.front_laser_dist = 0.0
         self.GB_count = 0
 
     def LRCB(self, msg):
-        self.lrmsg = msg
+        self.lrmsg = msg.data#!!
 
     def laserCB(self, receive_msg):
         self.front_laser_dist = receive_msg.ranges[359]
 
-
     def execute(self, userdate):
-        answer = self.grasp().result
-        if self.lrmsg == 'right':
-            self.grasp('right', [0.25, 0.4])
+        #answer = self.grasp().result
+        #tts_srv("which bag should I grasp")
 
-            if self.front_laser_dist < 0.4:
-                return 'grasp_finish'
+        print(self.lrmsg)
+        while not rospy.is_shutdown():
+            if self.lrmsg == 'right':
+               # tts_srv("grasp right one")
+                self.grasp('left', [0.25, 0.4])
+                break
 
-            elif self.front_laser_dist >= 0.4 and self.GB_count == 0:
-                rospy.loginfo('Executing state: RETURN')
-                rospy.sleep(0.5)
-                self.base_control.rotateAngle(170, 0.3)
-                rospy.sleep(0.5)
-                self.navi_srv('cml_start')
-                rospy.sleep(0.5)
-                self.GB_count += 1
-                return 'grasp_retry'
+            elif self.lrmsg == 'left':
+              #  tts_srv("grasp left one")
+                self.grasp('right', [0.25, 0.4])
+                break
+            else: pass
 
-            else:
-                return 'grasp_finish'
+        if self.front_laser_dist > 0.5:
+            return 'grasp_finish'
+        elif self.front_laser_dist <= 0.5 and self.GB_count == 0:
+            rospy.loginfo('Executing state: GRASP')
+            rospy.sleep(0.5)
+            self.GB_count += 1
+            return 'grasp_retry'
 
-        elif self.lrmsg == 'left':
-            self.grasp('left', [0.25, 0.4])
-
-            if self.front_laser_dist < 0.4:
-                return 'grasp_finish'
-
-            elif self.front_laser_dist >= 0.4 and self.GB_count == 0:
-                rospy.loginfo('Executing state: RETURN')
-                rospy.sleep(0.5)
-                self.base_control.rotateAngle(170, 0.3)
-                rospy.sleep(0.5)
-                self.navi_srv('cml_start')
-                rospy.sleep(0.5)
-                self.GB_count += 1
-                return 'grasp_retry'
-
-            else:
-                return 'grasp_finish'
+        else:
+            return 'grasp_retry'
 
         
         # if self.lrmsg == 'right':
@@ -131,7 +119,7 @@ class Chaser(smach.State):
         self.cmd_sub = receive_msg.linear.x
 
     def execute(self, userdate):
-        tts_srv("/cml/follow_you")
+        wave_srv("/cml/follow_you")
         self.chase.publish('start')
         while not rospy.is_shutdown():
             rospy.sleep(0.1)
@@ -140,19 +128,19 @@ class Chaser(smach.State):
                 self.find_msg = 'lost_stop'
                 self.start_time = time.time()
             elif self.cmd_sub == 0.0 and now_time >= 5.0 and self.find_msg == 'lost_stop':
-                tts_srv("/cml/car_question")
+                wave_srv("/cml/car_question")
                 answer = self.yesno_srv().result
                 if answer:
                     self.chaser_pub.publish('stop')
                     self.base_control.rotateAngle(0, 0)
                     self.base_control.translateDist(-0.3)
-                    tts_srv('/cml/give_bag')
+                    wave_srv('/cml/give_bag')
                     self.arm('give')
-                    tts_srv('/cml/return_start')
+                    wave_srv('/cml/return_start')
                     return 'chaser_finish'
 
                 else:
-                    tts_srv("cml/follow_cont")
+                    wave_srv("cml/follow_cont")
                     self.find_msg = "NULL"      #いらないかも
 
             elif self.cmd_sub != 0.0:
@@ -175,7 +163,7 @@ class Return(smach.State):
         rospy.sleep(0.5)
         self.navi_srv('cml_start')
         rospy.sleep(0.5)
-        tts_srv("/cml/finish_cml")
+        wave_srv("/cml/finish_cml")
         return 'return_finish'
 
 
