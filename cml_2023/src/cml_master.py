@@ -38,7 +38,7 @@ class GraspBag(smach.State):
                                         'grasp_retry'])
 
         self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
-        self.distance = rospy.Subscriber('/scan', LaserScan, self.laserCB)
+        self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
