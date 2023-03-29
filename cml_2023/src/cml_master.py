@@ -43,6 +43,11 @@ class GraspBag(smach.State):
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
 
+        self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
+        self.base_control = BaseControl()
+
+        GB_count = 0
+
     def LRCB(self, msg):
         self.lrmsg = msg
 
@@ -58,8 +63,18 @@ class GraspBag(smach.State):
             if self.front_laser_dist < 0.4:
                 return 'grasp_finish'
 
-            elif self.front_laser_dist >= 0.4:
+            elif self.front_laser_dist >= 0.4 and GB_count == 0:
+                rospy.loginfo('Executing state: RETURN')
+                rospy.sleep(0.5)
+                self.base_control.rotateAngle(170, 0.3)
+                rospy.sleep(0.5)
+                self.navi_srv('cml_start')
+                rospy.sleep(0.5)
+                GB_count += 1
                 return 'grasp_retry'
+
+            else:
+                return 'grasp_finish'
 
         elif self.lrmsg == 'left':
             self.grasp('left', [0.25, 0.4])
@@ -67,8 +82,18 @@ class GraspBag(smach.State):
             if self.front_laser_dist < 0.4:
                 return 'grasp_finish'
 
-            elif self.front_laser_dist >= 0.4:
+            elif self.front_laser_dist >= 0.4 and GB_count == 0:
+                rospy.loginfo('Executing state: RETURN')
+                rospy.sleep(0.5)
+                self.base_control.rotateAngle(170, 0.3)
+                rospy.sleep(0.5)
+                self.navi_srv('cml_start')
+                rospy.sleep(0.5)
+                GB_count += 1
                 return 'grasp_retry'
+
+            else:
+                return 'grasp_finish'
 
         
         # if self.lrmsg == 'right':
