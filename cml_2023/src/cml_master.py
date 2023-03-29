@@ -30,8 +30,7 @@ from base_control import BaseControl
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 
 
-#2dlidarでバッグを持ったか確認も出来れば書いてみたい
-#(失敗したら後ろに戻ってもう一度バッグを取りに行くようにするといいかも？)
+
 class GraspBag(smach.State):
     def __init__(self):
         smach.State.__init__(self,
