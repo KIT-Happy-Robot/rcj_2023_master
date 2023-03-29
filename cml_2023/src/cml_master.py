@@ -87,7 +87,8 @@ class GraspBag(smach.State):
             return 'grasp_retry'
 
         else:
-            return 'grasp_retry'
+            print("else")
+            return 'grasp_finish'
         
         # if self.lrmsg == 'right':
         #     self.grasp('right', [0.25, 0.4])
