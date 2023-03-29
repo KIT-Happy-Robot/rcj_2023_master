@@ -24,18 +24,18 @@ import tf
 import rosparam
 import roslib
 from scipy.spatial import distance
-from happymimi_msgs.srv import StrToStr, SetTrg, SetFloat, SimpleTrg, SetStr
+from happymimi_msgs.srv import StrToStr, StrTrg, SetFloat, SimpleTrg, SetStr
 from happymimi_navigation.srv import NaviLocation
 from std_msgs.msg import Float64
 from happymimi_voice_msgs.srv import TTS, YesNo, StringToString
-from fmmmod import FeatureFromVoice, FeatureFromRecog,  LocInfo, SaveInfo
+# from fmmmod import FeatureFromVoice, FeatureFromRecog,  LocInfo, SaveInfo
 from happymimi_navigation.srv import NaviLocation, NaviCoord
 
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
 from base_control import BaseControl
 # 足回り制御クラス
-bc = BaseControl()
+
 # 音声出力関数（サービスクライアント）
 tts_srv = rospy.ServiceProxy('/tts', StrTrg)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
@@ -56,13 +56,13 @@ class GetClose(smach.State):
         self.ap_srv = rospy.ServiceProxy('/approach_person_server', StrTrg)
         self.navi_srv = rospy.ServiceProxy('navi_location_server', NaviLocation)
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
-
+        self.bc = BaseControl()
 
     def execute(self, userdata):
         rospy.loginfo("Executing state: APPROACH_GUEST")
         g_num = userdata.g_num_in
         g_name = "human_" + str(g_num)
-        bc.rotateAngle(180,1.0)
+        self.bc.rotateAngle(180, 0, 1.0, 5)
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
         rospy.sleep(0.5)
@@ -74,11 +74,11 @@ class GetClose(smach.State):
             #0(水平)１(下に1°)-1(上に1°)
             self.head_pub.publish(0)
             rospy.sleep(1.0)
-            #bc.translateDist(1.0,0.2)
+            #self.bc.translateDist(1.0,0.2)
             #rospy.sleep(1.0)
-            #bc.rotateAngle(-90,1.0)
+            #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            bc.rotateAngle(-5, 0.5)
+            self.bc.rotateAngle(-5, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = human_0) #g_name
@@ -86,27 +86,27 @@ class GetClose(smach.State):
         elif g_num == 1:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
-            #bc.translateDist(1.0,0.2)
+            #self.bc.translateDist(1.0,0.2)
             #rospy.sleep(1.0)
-            #bc.rotateAngle(-90,1.0)
+            #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            bc.rotateAngle(-5, 0.5)
+            self.bc.rotateAngle(-5, 0, 0.5, 5)
             for i in range(3):
                 result = self.coord_gen_srv().result
                 print(result)
                 if result:
                     self.ap_srv(data = human_1)
                 else:
-                    bc.rotateAngle(-10,1.0)
+                    self.bc.rotateAngle(-10, 0, 1.0, 5)
         
         elif g_num == 2:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
-            #bc.translateDist(1.0,0.2)
+            #self.bc.translateDist(1.0,0.2)
             #rospy.sleep(1.0)
-            #bc.rotateAngle(-90,1.0)
+            #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            bc.rotateAngle(-80, 0.5)
+            self.bc.rotateAngle(-80, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = human_2) #g_name
@@ -141,10 +141,11 @@ class GetFeature(smach.State):
         self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
         self.cloth_color_srv = rospy.ServiceProxy('/person_feature/cloth_color',SetStr)
         self.getold_srv = rospy.ServiceProxy('/person_feature/old', SetStr)
-        self.getgender_srv = rospy.Service('/gender_jg', StringToString)
+        self.getgender_srv = rospy.ServiceProxy('/gender_jg', StringToString)
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
+        self.feature_srv = rospy.ServiceProxy('get_feature_srv', StrToStr)
         
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
@@ -162,7 +163,7 @@ class GetFeature(smach.State):
         self.result = 0.00
         self.loc_result = "null"
         
-
+        self.bc = BaseControl()
 
 
     # 「～さんですか？」って聞いてって名前を特定する関数
@@ -171,23 +172,22 @@ class GetFeature(smach.State):
         # tts_srv("Excuse me. I have a question for you")
         wave_srv("/fmm/start_q")
         
-
+        self.name = "null"
         for i in range(3):
-            name_res = self.gf_srv(req_data = name) # voiceのgetName()の結果(string res_data, bool result)を格納
-            self.guest_name = self.ffv.getName()
-        
-            # getNameがTrueなら
+            name_res = self.feature_srv(req_data = "name")
+            print (name_res.res_data)
             if name_res.result:
-                self.guest_name = name_res.res_data # 返答された名前を格納
+                self.name = name_res.res_data
+                tts_srv("Hi " + self.name)
                 break
-            # 
-            elif i < 3:
-                pass
-            # Falseかつ3回目まできたとき
+            elif i == 3:
+                break
+                # tts_srv("Sorry. I'm going to ask you one more time.")
             else:
-                self.guest_name = "" # 空の名前
-        tts_srv("Hi!" + self.guest_name)
-        return self.guest_name
+                wave_srv("/fmm/ask_again")
+                self.name = "guest"
+        return self.name
+
 
 
     # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
@@ -336,7 +336,14 @@ class Tell(smach.State):
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size=1)
         self.bc = BaseControl()
         self.sentence_list = []
-        self.si = SaveInfo()
+        self.data_path = roslib.packages.get_pkg_dir("find_my_mates2022") + "/guest_info/"
+        
+    def saveInfo(self, name, data):
+        rospy.loginfo('Save feature')
+        file_name = name + ".yaml"
+        with open(os.path.join(self.data_path, file_name), "w") as yf:
+            yaml.dump(data, yf, default_flow_style = False)
+        # self.save_srv(data = self.data_path)
 
     def execute(self, userdata):
         # inputとoutptに気を付ける
@@ -349,7 +356,7 @@ class Tell(smach.State):
         rospy.sleep(0.2)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(110, 0.2)
+        self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
         self.navi_srv('operator')
         navi_result = self.navi_srv('operator').result
@@ -370,13 +377,40 @@ class Tell(smach.State):
             tts_srv(self.sentence_list[i])
             i += 1
 
-        self.si.saveInfo("guest_" + str(count_num), self.sentence_list)
+        self.saveInfo("guest_" + str(count_num), self.sentence_list)
         userdata.g_num_out = count_num + 1
             
         return "tell_finish"
 
 
-def smach():
+#def smach():
+    # sm = smach.StateMachine(outcomes = ['fmm_finish'])
+    # sm.userdata.g_num = 0 # 完了したゲストの数
+    # sm.userdata.features = []
+
+    # with sm:
+    #     smach.StateMachine.add("GetClose",
+    #                            GetClose(),
+    #                            transitions = {"get_close_finish":"GetFeature"},
+    #                            remapping = {"g_num_in":"g_num",
+    #                                         "g_num_out":"g_num"})
+    #     smach.StateMachine.add("GetFeature",
+    #                            GetFeature(),
+    #                            transitions = {"get_feature_finish":"Tell"},
+    #                            remapping = {"g_num_in":"g_num",
+    #                                         "g_num_out":"g_num",
+    #                                         "features_in":"features"})
+    #     smach.StateMachine.add("Tell",
+    #                            Tell(),
+    #                            transitions = {"tell_finish":"GetClonse"},
+    #                            remapping = {"feature_in":"features"})
+    # outcome = sm.execute()
+
+if __name__=='__main__':
+    rospy.init_node('find_mm')
+    rospy.loginfo("Start Find My Mates")
+
+    # sm = smach()
     sm = smach.StateMachine(outcomes = ['fmm_finish'])
     sm.userdata.g_num = 0 # 完了したゲストの数
     sm.userdata.features = []
@@ -395,12 +429,6 @@ def smach():
                                             "features_in":"features"})
         smach.StateMachine.add("Tell",
                                Tell(),
-                               transitions = {"tell_finish":"GetClonse"},
+                               transitions = {"tell_finish":"GetClose"},
                                remapping = {"feature_in":"features"})
     outcome = sm.execute()
-
-if __name__=='__main__':
-    rospy.init_node('find_mm')
-    rospy.loginfo("Start Find My Mates")
-    sm1 = smach()
-    outcome = sm1.sm.execute()

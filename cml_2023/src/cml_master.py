@@ -33,9 +33,7 @@ wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
 class GraspBag(smach.State):
     def __init__(self):
-        smach.State.__init__(self,
-                            outcomes = ['grasp_finish',
-                                        'grasp_retry'])
+        smach.State.__init__(self, outcomes = ['grasp_finish', 'grasp_retry'])
 
         self.lr_srv = rospy.Subscriber("/left_right_recognition", String, self.LRCB)
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
@@ -73,7 +71,11 @@ class GraspBag(smach.State):
                 break
 
             elif self.lrmsg == 'left':
+<<<<<<< HEAD
+                wave_srv("cml/bag_right")
+=======
               #  tts_srv("grasp left one")
+>>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
                 self.grasp('left', [0.25, 0.4])
                 break
             else: pass
@@ -82,7 +84,10 @@ class GraspBag(smach.State):
 
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
+<<<<<<< HEAD
+=======
 
+>>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
         elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
