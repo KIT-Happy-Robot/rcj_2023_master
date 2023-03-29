@@ -64,21 +64,36 @@ class GraspBag(smach.State):
                 break
 
             elif self.lrmsg == 'left':
+<<<<<<< HEAD
                 wave_srv("cml/bag_right")
+=======
+              #  tts_srv("grasp left one")
+>>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
                 self.grasp('left', [0.25, 0.4])
                 break
             else: pass
 
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
+<<<<<<< HEAD
+=======
+
+>>>>>>> d4f3c132ee2ae809dba4cf9f8b473c1263e92597
         elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
+            ###追加
+            self.base_control.rotateAngle(170, 0.3)
+            rospy.sleep(0.5)
+            self.navi('cml_start')
+            rospy.sleep(0.5)
+            ###
             self.GB_count += 1
             return 'grasp_retry'
 
         else:
-            return 'grasp_retry'
+            print("else")
+            return 'grasp_finish'
         
         # if self.lrmsg == 'right':
         #     self.grasp('right', [0.25, 0.4])
@@ -158,7 +173,7 @@ class Return(smach.State):
         rospy.sleep(0.5)
         self.base_control.rotateAngle(170, 0.3)
         rospy.sleep(0.5)
-        self.navi_srv('cml_start')
+        self.navi('cml_start')
         rospy.sleep(0.5)
         wave_srv("/cml/finish_cml")
         return 'return_finish'
