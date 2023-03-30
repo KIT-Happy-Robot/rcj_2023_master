@@ -44,7 +44,7 @@ class GraspBag(smach.State):
 
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         self.base_control = BaseControl()
-        self.lrmsg = ""
+        self.lrmsg = "NULL"
         self.front_laser_dist = 0.0
         self.GB_count = 0
 
@@ -55,7 +55,7 @@ class GraspBag(smach.State):
         self.front_laser_dist = receive_msg.ranges[359]
 
     def subscribeCheck(self):
-        while not self.pose_msg and not rospy.is_shutdown():
+        while not self.lrmsg and not rospy.is_shutdown():
             rospy.loginfo('No pose data available ...')
             rospy.sleep(0.5)
 
@@ -68,13 +68,14 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             if self.lrmsg == 'right':
-                rospy.loginfo("right")
-               # tts_srv("grasp right one")
+                #tts_srv("grasp right one")
+                rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
 
             elif self.lrmsg == 'left':
-                rospy.loginfo("left")
+                wave_srv("cml/bag_right")
+                rospy.loginfo('left')
               #  tts_srv("grasp left one")
                 self.grasp('left', [0.25, 0.4])
                 break
@@ -146,9 +147,10 @@ class Chaser(smach.State):
                 self.start_time = time.time()
             elif self.cmd_sub == 0.0 and now_time >= 5.0 and self.find_msg == 'lost_stop':
                 wave_srv("/cml/car_question")
+                print('yes_or_no')
                 answer = self.yesno().result
                 if answer:
-                    self.chaser_pub.publish('stop')
+                    self.chase.publish('stop')
                     # self.base_control.rotateAngle(0, 0)
                     # self.base_control.translateDist(-0.3)
                     wave_srv('/cml/give_bag')
