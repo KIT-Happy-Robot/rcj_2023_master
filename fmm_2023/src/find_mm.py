@@ -98,7 +98,7 @@ class GetClose(smach.State):
                 result = self.coord_gen_srv().result
                 print(result)
                 if result:
-                    self.ap_srv(data = human_1)
+                    self.ap_srv(data = g_name)
                 else:
                     self.bc.rotateAngle(-10, 0, 1.0, 5)
         
@@ -112,7 +112,7 @@ class GetClose(smach.State):
             self.bc.rotateAngle(-80, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = human_2) #g_name
+            self.ap_srv(data = g_name) #g_name
 
         else:
             pass
@@ -135,8 +135,12 @@ class GetClose(smach.State):
 class GetFeature(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes = ['get_feature_finish'],
-                             input_keys = ['g_num_in','feature_in'],
-                             output_keys = ['g_num_out','feature_out'])
+                             input_keys = ['g_num_in'],
+                             output_keys = ['feature_out'])
+        
+        #(self, outcomes = ['get_feature_finish'],
+        #                     input_keys = ['g_num_in','feature_in'],
+        #                     output_keys = ['g_num_out','feature_out'])
 
         # Features
         # https://github.com/KIT-Happy-Robot/happymimi_voice/blob/master/happymimi_voice_common/src/get_feature_srv.py
@@ -294,15 +298,15 @@ class GetFeature(smach.State):
         return self.loc_result
         
     def execute(self, userdata):
-        self.features = []
-        self.features = userdata.feature_in
-        g_num = userdata.g_num_in
-        g_name = "human_" + str(g_num)#いるかわからん
+        #self.features = []
+        #self.features = userdata.feature_in
         rospy.loginfo("Executing state: FIND_FUATURE")
         self.head_pub.publish(-20)
+        #g_name = "human_" + str(g_num)
         # tts_srv("Excuse me. I have a question for you")
         wave_srv("/fmm/start_q")
         self.guest_name = self.getName()
+        g_num = userdata.g_num_in
         #print (self.guest_name)
         self.guest_loc = self.li.getLocInfo("human_" + str(g_num))
         self.gn_sentence = self.guest_name + " is near " + self.guest_loc
