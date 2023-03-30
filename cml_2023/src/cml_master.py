@@ -181,7 +181,7 @@ class Return(smach.State):
         rospy.sleep(0.5)
         #self.base_control.rotateAngle(170, 0.3)
         rospy.sleep(0.5)
-        self.navi('cml_start')
+        self.navi('cml')
         rospy.sleep(0.5)
         wave_srv("/cml/finish_cml")
         return 'return_finish'
