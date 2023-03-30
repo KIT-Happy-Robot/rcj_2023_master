@@ -49,7 +49,7 @@ wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 # 人接近：hm_apps/approach_person　https://github.com/KIT-Happy-Robot/happymimi_apps/tree/develop/approach_person
 class GetClose(smach.State):
     def __init__(self):
-        smach.State.__init__(self, outcomes = ['get_close_finish', 'get_close_false'],
+        smach.State.__init__(self, outcomes = ['get_close_finish'],
                             input_keys = ['g_num_in'],
                             output_keys = ['g_num_out'])
         self.coord_gen_srv = rospy.ServiceProxy('/human_coord_generator',SimpleTrg)
@@ -84,7 +84,7 @@ class GetClose(smach.State):
             self.bc.rotateAngle(-5, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = human_0) #g_name
+            self.ap_srv(data = g_name) #g_name
         
         elif g_num == 1:
             self.head_pub.publish(0)
@@ -123,7 +123,8 @@ class GetClose(smach.State):
             return 'get_close_finish'
         else:
             # 失敗のパターン
-            return 'get_close_false'
+            #return 'get_close_false'
+            return 'get_close_finish'
 
 
 # 例）左に９０度、0.5の角速度で回転する(右は角度マイナス)
@@ -294,7 +295,7 @@ class GetFeature(smach.State):
         
     def execute(self, userdata):
         self.features = []
-        self.features = userdata.features
+        self.features = userdata.feature_in
         g_num = userdata.g_num_in
         g_name = "human_" + str(g_num)#いるかわからん
         rospy.loginfo("Executing state: FIND_FUATURE")
@@ -331,7 +332,7 @@ class GetFeature(smach.State):
 class Tell(smach.State):
 
     def __init__(self):
-        smach.State.__init__(self, outcomes = ['tell_finish'],
+        smach.State.__init__(self, outcomes = ['tell_finish','all_finish'],
                              input_keys = ['g_num_in','features_in'],
                              output_keys = ['g_num_out','features_out'])
         self.navi_srv = rospy.ServiceProxy('navi_location_server', NaviLocation)
