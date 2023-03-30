@@ -62,6 +62,9 @@ class GetClose(smach.State):
         rospy.loginfo("Executing state: APPROACH_GUEST")
         g_num = userdata.g_num_in
         g_name = "human_" + str(g_num)
+        if g_num == 0:
+            # tts_srv("Start Find My Mates")
+            wave_srv("/fmm/start_fmm")
         self.bc.rotateAngle(180, 0, 1.0, 5)
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
@@ -379,8 +382,13 @@ class Tell(smach.State):
 
         self.saveInfo("guest_" + str(count_num), self.sentence_list)
         userdata.g_num_out = count_num + 1
-            
-        return "tell_finish"
+        
+        if count_num >= 2: 
+            # tts_srv("Finish Find My Mates. Thank you very much")
+            wave_srv("/fmm/finish_fmm")
+            return 'all_finish'
+        else:
+            return 'tell_finish'
 
 
 #def smach():
@@ -429,6 +437,7 @@ if __name__=='__main__':
                                             "features_in":"features"})
         smach.StateMachine.add("Tell",
                                Tell(),
-                               transitions = {"tell_finish":"GetClose"},
+                               transitions = {"tell_finish":"GetClose",
+                                              "all_finish":"fmm_finish"},
                                remapping = {"feature_in":"features"})
     outcome = sm.execute()
