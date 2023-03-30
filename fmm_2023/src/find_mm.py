@@ -154,6 +154,7 @@ class GetFeature(smach.State):
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
         self.feature_srv = rospy.ServiceProxy('get_feature_srv', StrToStr)
+        self.yes_no_srv = rospy.ServiceProxy('/yes_no', YesNo)
         
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
@@ -296,6 +297,10 @@ class GetFeature(smach.State):
                 self.loc_result = self.loc_name
         print (self.loc_result)
         return self.loc_result
+    
+    def yesNo(self):
+        result = self.yes_no_srv().result
+        return result
         
     def execute(self, userdata):
         #self.features = []
