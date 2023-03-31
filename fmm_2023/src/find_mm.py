@@ -174,29 +174,58 @@ class GetFeature(smach.State):
         
         self.bc = BaseControl()
 
+        rospy.init_node('get_feature_srv')
+        self.tempNumMake()
+        with open(name_path) as f:
+            self.names=yaml.safe_load(f)
+        with open(pkl_name_path,"wb") as pf:
+            pickle.dump(self.names,pf)
+        print(self.names)
+        self.template=[s for s in open(file_path+file_temp)]
+        #self.GetGender=GetGender.GenderJudgementFromNameByNBC.loadNBCmodel(happymimi_voice_path+"/config/dataset/genderNBCmodel.dill")
+        rospy.wait_for_service('/tts')
+        rospy.wait_for_service('/stt_server2')
+        rospy.wait_for_service('/waveplay_srv')
+        rospy.wait_for_service('/yes_no')
+        self.tts=rospy.ServiceProxy('/tts', StrTrg)
+        self.wave_srv=rospy.ServiceProxy('/waveplay_srv', StrTrg)
+        self.stt=rospy.ServiceProxy('/stt_server2',SpeechToText)
+        self.server=rospy.Service('/get_feature_srv',StrToStr,self.main)
+        #self.sound=rospy.ServiceProxy('/sound', Empty)
+        self.yes_no_srv = rospy.ServiceProxy('/yes_no',YesNo)
+        print("server is ready")
+
+        self.name=""
+        rospy.spin()
+
+
 
     # 「～さんですか？」って聞いてって名前を特定する関数
     # 画像で名前を判断したいな https://www.panasonic.com/jp/business/its/ocr/ai-ocr.html
     def getName(self):
-        # tts_srv("Excuse me. I have a question for you")
-        wave_srv("/fmm/start_q")
-        
-        self.name = "null"
-        for i in range(3):
-            name_res = self.feature_srv(req_data = "name")
-            print (name_res.res_data)
-            if name_res.result:
-                self.name = name_res.res_data
-                tts_srv("Hi " + self.name)
-                break
-            elif i == 3:
-                break
-                # tts_srv("Sorry. I'm going to ask you one more time.")
-            else:
-                wave_srv("/fmm/ask_again")
-                self.name = "guest"
-        return self.name
+        with open(pkl_name_path,"rb") as pf:
+            names = pickle.load(pf)
+        if names:
+            ans_name = ""
+            for name in names:
+                if name == names[-1]:
+                    ans_name = names[-1]
+                    break
+                else:
+                    self.tts("Are you" + name)
+                    yes_no = self.yes_no_srv().result
+                    if yes_no:
+                        ans_name = name
+                        break
+                    else:
+                        continue
+            names.remove(ans_name)
+            with open(pkl_name_path,"wb") as pf:
+                pickle.dump(names,pf)
+        else:
+            ans_name = None
 
+        return ans_name
 
 
     # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
