@@ -23,6 +23,7 @@ import yaml
 import tf
 import rosparam
 import roslib
+import roslib.packages
 from scipy.spatial import distance
 from happymimi_msgs.srv import StrToStr, StrTrg, SetFloat, SimpleTrg, SetStr
 from happymimi_navigation.srv import NaviLocation
@@ -30,6 +31,19 @@ from std_msgs.msg import Float64
 from happymimi_voice_msgs.srv import TTS, YesNo, StringToString
 # from fmmmod import FeatureFromVoice, FeatureFromRecog,  LocInfo, SaveInfo
 from happymimi_navigation.srv import NaviLocation, NaviCoord
+from happymimi_voice_msgs.srv import StringToString,StringToStringResponse
+#from std_srvs.srv import Empty
+from happymimi_voice_msgs.srv import SpeechToText
+from happymimi_msgs.srv import StrToStrResponse
+import re
+import fuzzy
+import copy
+import math
+happymimi_voice_path=roslib.packages.get_pkg_dir("happymimi_voice")+"/.."
+sys.path.insert(0,happymimi_voice_path)
+from happymimi_nlp import sentence_analysis as se
+from happymimi_nlp import gender_judgement_from_name as GetGender
+import pickle
 
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
@@ -40,6 +54,13 @@ from base_control import BaseControl
 tts_srv = rospy.ServiceProxy('/tts', StrTrg)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
+file_path=happymimi_voice_path+"/config/voice_common"
+file_temp="/get_feature.txt"
+name_path=roslib.packages.get_pkg_dir("find_my_mates")+"/config/guest_name.yaml"
+
+pkl_name_path=roslib.packages.get_pkg_dir("find_my_mates")+"/config/guest_name.pkl"
+happymimi_voice_path=roslib.packages.get_pkg_dir("happymimi_voice")+"/.."
+sys.path.insert(0,happymimi_voice_path)
 
 # 人の目の前までに寄る状態
 # 隣の部屋に移動・人接近・人の特徴取得
