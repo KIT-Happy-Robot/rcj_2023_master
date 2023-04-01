@@ -86,19 +86,20 @@ class GraspBag(smach.State):
         self.subscribeCheck()
         rospy.sleep(1.5)
         #print(self.lrmsg)
-        if self.right_count >= 10:
-            #tts_srv("grasp right one")
-            rospy.loginfo('left')
-            self.grasp('left', [0.25, 0.4])
+        while not rospy.is_shutdown():
+            if self.right_count >= 10:
+                #tts_srv("grasp right one")
+                rospy.loginfo('left')
+                self.grasp('left', [0.25, 0.4])
 
-        elif self.left_count >= 10:
-            #wave_srv("cml/bag_right")
-            #tts_srv("grasp left one")
-            rospy.loginfo('right')
-            self.grasp('right', [0.25, 0.4])
+            elif self.left_count >= 10:
+                #wave_srv("cml/bag_right")
+                #tts_srv("grasp left one")
+                rospy.loginfo('right')
+                self.grasp('right', [0.25, 0.4])
 
-        else:
-            pass
+            else:
+                pass
 
         rospy.sleep(3.0)
 
