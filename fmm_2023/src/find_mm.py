@@ -20,9 +20,8 @@ import rospy
 import std_msgs
 import smach
 import yaml
-import tf
 import rosparam
-import roslib
+import roslib.packages
 from scipy.spatial import distance
 from happymimi_msgs.srv import StrToStr, StrTrg, SetFloat, SimpleTrg, SetStr
 from happymimi_navigation.srv import NaviLocation
@@ -30,6 +29,19 @@ from std_msgs.msg import Float64
 from happymimi_voice_msgs.srv import TTS, YesNo, StringToString
 # from fmmmod import FeatureFromVoice, FeatureFromRecog,  LocInfo, SaveInfo
 from happymimi_navigation.srv import NaviLocation, NaviCoord
+from happymimi_voice_msgs.srv import StringToString,StringToStringResponse
+#from std_srvs.srv import Empty
+from happymimi_voice_msgs.srv import SpeechToText
+from happymimi_msgs.srv import StrToStrResponse
+# import re
+# import fuzzy
+# import copy
+# import math
+happymimi_voice_path=roslib.packages.get_pkg_dir("happymimi_voice")+"/.."
+sys.path.insert(0,happymimi_voice_path)
+from happymimi_nlp import sentence_analysis as se
+from happymimi_nlp import gender_judgement_from_name as GetGender
+import pickle 
 
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
@@ -40,6 +52,13 @@ from base_control import BaseControl
 tts_srv = rospy.ServiceProxy('/tts', StrTrg)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
+file_path=happymimi_voice_path+"/config/voice_common"
+file_temp="/get_feature.txt"
+name_path=roslib.packages.get_pkg_dir("fmm_2023")+"/config/guest_name.yaml"
+
+pkl_name_path=roslib.packages.get_pkg_dir("fmm_2023")+"/config/guest_name.pkl"
+happymimi_voice_path=roslib.packages.get_pkg_dir("happymimi_voice")+"/.."
+sys.path.insert(0,happymimi_voice_path)
 
 # 人の目の前までに寄る状態
 # 隣の部屋に移動・人接近・人の特徴取得
@@ -142,6 +161,7 @@ class GetFeature(smach.State):
         #                     input_keys = ['g_num_in','feature_in'],
         #                     output_keys = ['g_num_out','feature_out'])
 
+
         # Features
         # https://github.com/KIT-Happy-Robot/happymimi_voice/blob/master/happymimi_voice_common/src/get_feature_srv.py
         self.gf_srv= rospy.ServiceProxy('get_feature_srv', StrToStr)
@@ -170,33 +190,35 @@ class GetFeature(smach.State):
         self.loc_name_list = list(self.loc_dict.keys())
         self.loc_name      = "null"
         self.result = 0.00
-        self.loc_result = "null"
-        
+        self.loc_result = "null"        
         self.bc = BaseControl()
-
 
     # 「～さんですか？」って聞いてって名前を特定する関数
     # 画像で名前を判断したいな https://www.panasonic.com/jp/business/its/ocr/ai-ocr.html
     def getName(self):
-        # tts_srv("Excuse me. I have a question for you")
-        wave_srv("/fmm/start_q")
-        
-        self.name = "null"
-        for i in range(3):
-            name_res = self.feature_srv(req_data = "name")
-            print (name_res.res_data)
-            if name_res.result:
-                self.name = name_res.res_data
-                tts_srv("Hi " + self.name)
-                break
-            elif i == 3:
-                break
-                # tts_srv("Sorry. I'm going to ask you one more time.")
-            else:
-                wave_srv("/fmm/ask_again")
-                self.name = "guest"
-        return self.name
+        with open(pkl_name_path,"rb") as pf:
+            names = pickle.load(pf)
+        if names:
+            ans_name = ""
+            for name in names:
+                if name == names[-1]:
+                    ans_name = names[-1]
+                    break
+                else:
+                    tts_srv("Are you" + name)
+                    yes_no = self.yes_no_srv().result
+                    if yes_no:
+                        ans_name = name
+                        break
+                    else:
+                        continue
+            names.remove(ans_name)
+            with open(pkl_name_path,"wb") as pf:
+                pickle.dump(names,pf)
+        else:
+            ans_name = None
 
+        return ans_name
 
 
     # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
@@ -277,7 +299,7 @@ class GetFeature(smach.State):
         else:
             return "no wearing"
 
-    def getLocInfo(self):
+    def getLocInfo(self, target_name):
         self.loc_name = "null"
         self.human_dict = rospy.get_param('/tmp_human_location')
         print(self.human_dict)
@@ -297,10 +319,6 @@ class GetFeature(smach.State):
                 self.loc_result = self.loc_name
         print (self.loc_result)
         return self.loc_result
-    
-    def yesNo(self):
-        result = self.yes_no_srv().result
-        return result
         
     def execute(self, userdata):
         #self.features = []
@@ -313,8 +331,8 @@ class GetFeature(smach.State):
         self.guest_name = self.getName()
         g_num = userdata.g_num_in
         #print (self.guest_name)
-        self.guest_loc = self.li.getLocInfo("human_" + str(g_num))
-        self.gn_sentence = self.guest_name + " is near " + self.guest_loc
+        self.guest_loc = self.getLocInfo("human_" + str(g_num))
+        self.gn_sentence = str(self.guest_name) + " is near " + str(self.guest_loc)
         # 使用済みの特徴を使わないようにする
 
         if g_num == 0:

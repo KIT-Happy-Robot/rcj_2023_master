@@ -57,7 +57,7 @@ class GraspBag(smach.State):
     def subscribeCheck(self):
         while not self.lrmsg and not rospy.is_shutdown():
             rospy.loginfo('No pose data available ...')
-            rospy.sleep(0.5)
+            rospy.sleep(1.5)
 
     def execute(self, userdate):
         #answer = self.grasp().result
@@ -65,17 +65,17 @@ class GraspBag(smach.State):
 
         self.subscribeCheck()
         rospy.sleep(1.5)
-        print(self.lrmsg)
+        #print(self.lrmsg)
         while not rospy.is_shutdown():
-            if self.lrmsg == 'right':
+            if self.lrmsg == '0:left':
                 #tts_srv("grasp right one")
                 wave_srv("cml/bag_right")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
 
-            elif self.lrmsg == 'left':
-                
+            elif self.lrmsg == '0:right':
+                wave_srv("cml/bag_right")
                 rospy.loginfo('left')
                 wave_srv("cml/bag_left")
               #  tts_srv("grasp left one")

@@ -7,4 +7,5 @@
   <node name="height_estimation" pkg="person_feature_extraction" type="height_estimation.py" output="screen"/>
   <node name="detect_skin_colorv2" pkg="person_feature_extraction" type="detect_skin_colorv2.py" output="screen"/>
   <node name="find_mm" pkg="fmm_2023" type="find_mm.py" output="screen"/>
+  <node name="get_feature_srv" pkg="happymimi_voice_common" type="get_feature_srv.py" output="screen"/>
 </launch>
