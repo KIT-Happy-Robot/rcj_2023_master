@@ -66,14 +66,14 @@ class GraspBag(smach.State):
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
-                print(self.left_count)
+                rospy.loginfo("left")
                 if self.left_count >= 5:
                     break
 
             elif self.lrmsg == 'right':
                 self.right_count += 1
                 self.left_count = 0
-                print(self.right_count)
+                rospy.loginfo("right")
 
             else:
                 # self.left_count = 0
@@ -85,7 +85,7 @@ class GraspBag(smach.State):
         #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
     
-        rospy.sleep(3.0)
+        #rospy.sleep(3.0)
         self.subscribeCheck()
         rospy.sleep(1.5)
         #print(self.lrmsg)
