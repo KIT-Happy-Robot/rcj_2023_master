@@ -19,8 +19,8 @@ from happymimi_msgs.srv import StrTrg
 from geometry_msgs.msg import Twist
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
-from actplan_executor.msg import APExecutorAction, APExecutorGoal
-from find_bag.srv import FindBagSrv
+#from actplan_executor.msg import APExecutorAction, APExecutorGoal
+#from find_bag.srv import FindBagSrv
 
 
 base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
