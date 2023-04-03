@@ -47,8 +47,6 @@ class GraspBag(smach.State):
         self.lrmsg = "NULL"
         self.front_laser_dist = 0.0
         self.GB_count = 0
-        self.right_count = 0
-        self.left_count = 0
 
     def LRCB(self, msg):
         self.lrmsg = msg.data#!!
@@ -61,66 +59,27 @@ class GraspBag(smach.State):
             rospy.loginfo('No pose data available ...')
             rospy.sleep(1.5)
 
-    def lrSelect(self):     #rightかleftが10回連続で出たら、連続で出たほうにいくようにする。
-        while self.right_count>=5 and not rospy.is_shutdown():
-            if self.lrmsg == 'left':
-                self.left_count += 1
-                self.right_count = 0
-                print(self.left_count)
-                if self.left_count >= 5:
-                    break
-
-            elif self.lrmsg == 'right':
-                self.right_count += 1
-                self.left_count = 0
-                print(self.right_count)
-
-            else:
-                # self.left_count = 0
-                # self.right_count = 0
-                pass
-
-
     def execute(self, userdate):
         #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
-    
-        #rospy.sleep(3.0)
+
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
-        
-        # while not rospy.is_shutdown():
-        #     if self.lrmsg == '0:right':
-        #         #tts_srv("grasp right one")
-        #         rospy.loginfo('right')
-        #         self.grasp('right', [0.25, 0.4])
-        #         break
-
-        #     elif self.lrmsg == '0:left':
-        #         wave_srv("cml/bag_right")
-        #         rospy.loginfo('left')
-        #       #  tts_srv("grasp left one")
-        #         self.grasp('left', [0.25, 0.4])
-        #         break
-        #     else: 
-        #         pass
-        
-            
         while not rospy.is_shutdown():
-            if self.right_count >= 5:
+            if self.lrmsg == '0:right':
                 #tts_srv("grasp right one")
-                rospy.loginfo('left')
-                self.grasp('left', [0.25, 0.4])
-
-            elif self.left_count >= 5:
-                #wave_srv("cml/bag_right")
-                #tts_srv("grasp left one")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
+                break
 
-            else:
-                pass
+            elif self.lrmsg == '0:left':
+                wave_srv("cml/bag_right")
+                rospy.loginfo('left')
+              #  tts_srv("grasp left one")
+                self.grasp('left', [0.25, 0.4])
+                break
+            else: pass
 
         rospy.sleep(3.0)
 
@@ -141,6 +100,18 @@ class GraspBag(smach.State):
         else:
             print("else")
             return 'grasp_finish'
+        
+        # if self.lrmsg == 'right':
+        #     self.grasp('right', [0.25, 0.4])
+        #     return 'grasp_finish'
+
+        # elif self.lrmsg == 'left':
+        #     self.grasp('left', [0.25, 0.4])
+        #     return 'grasp_finish'
+
+        # elif answer == False:
+        #     rospy.sleep(0.5)
+        #     return 'grasp_retry'
 
 
 class Chaser(smach.State):
@@ -172,11 +143,11 @@ class Chaser(smach.State):
             rospy.sleep(0.1)
             now_time = time.time() - self.start_time
             rospy.loginfo('Not_stoping')
-            if self.cmd_sub <= 0.2 and self.find_msg == 'NULL':
+            if self.cmd_sub <= 0.1 and self.find_msg == 'NULL':
                 self.find_msg = 'lost_stop'
                 self.start_time = time.time()
                 rospy.loginfo('loststoped')
-            elif self.cmd_sub <= 0.2 and now_time >= 4.0 and self.find_msg == 'lost_stop':
+            elif self.cmd_sub <= 0.1 and now_time >= 5.0 and self.find_msg == 'lost_stop':
                 wave_srv("/cml/car_question")
                 rospy.loginfo('yes_or_no')
                 answer = self.yesno().result
