@@ -95,16 +95,17 @@ class GraspBag(smach.State):
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
-                print("left_count = ",self.left_count)
-                if self.left_count >= 5:
+                print(self.left_count)
+                if self.left_count >= 4:
                     break
 
             elif self.lrmsg == 'right':
                 self.right_count += 1
                 self.left_count = 0
-                print("right_count = ",self.right_count)
-                if self.right_count >= 5:
+                print(self.right_count)
+                if self.right_count >= 4:
                     break
+
 
             else:
                 # self.left_count = 0
