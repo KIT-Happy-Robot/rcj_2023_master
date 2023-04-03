@@ -60,7 +60,7 @@ class GraspBag(smach.State):
             rospy.sleep(1.5)
 
     def execute(self, userdate):
-        answer = self.grasp().result
+        #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
 
         self.subscribeCheck()
@@ -68,13 +68,14 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             print(self.lrmsg)
-            if self.lrmsg == '0:right':
+            rospy.sleep(1.0)
+            if self.lrmsg == 'right':
                 #tts_srv("grasp right one")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
 
-            elif self.lrmsg == '0:left':
+            elif self.lrmsg == 'left':
                 wave_srv("cml/bag_right")
                 rospy.loginfo('left')
               #  tts_srv("grasp left one")
