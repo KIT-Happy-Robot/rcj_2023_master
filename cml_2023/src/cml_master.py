@@ -124,40 +124,39 @@ class GraspBag(smach.State):
             print("else")
             return 'grasp_finish'
         # while not rospy.is_shutdown():
-        #     if self.lrmsg == '0:right':
-        #         #tts_srv("grasp right one")
-        #         rospy.loginfo('right')
-        #         self.grasp('right', [0.25, 0.4])
-        #         break
+                #     if self.right_count >= 5:
+                #         #tts_srv("grasp right one")
+                #         rospy.loginfo('left')
+                #         self.grasp('left', [0.25, 0.4])
 
-        #     elif self.lrmsg == '0:left':
-        #         wave_srv("cml/bag_right")
-        #         rospy.loginfo('left')
-        #       #  tts_srv("grasp left one")
-        #         self.grasp('left', [0.25, 0.4])
-        #         break
-        #     else: pass
+                #     elif self.left_count >= 5:
+                #         #wave_srv("cml/bag_right")
+                #         #tts_srv("grasp left one")
+                #         rospy.loginfo('right')
+                #         self.grasp('right', [0.25, 0.4])
 
-        # rospy.sleep(3.0)
+                #     else:
+                #         pass
 
-        # if self.front_laser_dist > 0.2:
-        #     return 'grasp_finish'
+                # rospy.sleep(3.0)
 
-        # elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
-        #     rospy.loginfo('Executing state: GRASP')
-        #     rospy.sleep(0.5)
-        #     ###追加
-        #     rospy.sleep(0.5)
-        #     self.navi('cml')
-        #     rospy.sleep(0.5)
-        #     ###
-        #     self.GB_count += 1
-        #     return 'grasp_retry'
+                # if self.front_laser_dist > 0.2:
+                #     return 'grasp_finish'
 
-        # else:
-        #     print("else")
-        #     return 'grasp_finish'
+                # elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
+                #     rospy.loginfo('Executing state: GRASP')
+                #     rospy.sleep(0.5)
+                #     ###追加
+                #     rospy.sleep(0.5)
+                #     self.navi('cml')
+                #     rospy.sleep(0.5)
+                #     ###
+                #     self.GB_count += 1
+                #     return 'grasp_retry'
 
+                # else:
+                #     print("else")
+                #     return 'grasp_finish'
 
 class Chaser(smach.State):
     def __init__(self):
