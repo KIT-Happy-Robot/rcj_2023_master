@@ -19,8 +19,8 @@ from happymimi_msgs.srv import StrTrg
 from geometry_msgs.msg import Twist
 from happymimi_voice_msgs.srv import TTS, YesNo, ActionPlan
 from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSrvResponse
-#from actplan_executor.msg import APExecutorAction, APExecutorGoal
-#from find_bag.srv import FindBagSrv
+from actplan_executor.msg import APExecutorAction, APExecutorGoal
+from find_bag.srv import FindBagSrv
 
 
 base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
@@ -60,13 +60,14 @@ class GraspBag(smach.State):
             rospy.sleep(1.5)
 
     def execute(self, userdate):
-        #answer = self.grasp().result
+        answer = self.grasp().result
         #tts_srv("which bag should I grasp")
 
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
         while not rospy.is_shutdown():
+            print(self.lrmsg)
             if self.lrmsg == '0:right':
                 #tts_srv("grasp right one")
                 rospy.loginfo('right')
