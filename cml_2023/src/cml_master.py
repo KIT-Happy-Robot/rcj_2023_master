@@ -89,20 +89,22 @@ class GraspBag(smach.State):
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
-        while self.right_count>=5 and not rospy.is_shutdown():
+        while not rospy.is_shutdown():
             print(self.lrmsg)
             rospy.sleep(1.0)
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
-                print(self.left_count)
+                print("left_count = ",self.left_count)
                 if self.left_count >= 5:
                     break
 
             elif self.lrmsg == 'right':
                 self.right_count += 1
                 self.left_count = 0
-                print(self.right_count)
+                print("right_count = ",self.right_count)
+                if self.right_count >= 5:
+                    break
 
             else:
                 # self.left_count = 0

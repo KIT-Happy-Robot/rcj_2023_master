@@ -80,15 +80,17 @@ class GetClose(smach.State):
     def execute(self, userdata):
         rospy.loginfo("Executing state: APPROACH_GUEST")
         g_num = userdata.g_num_in
+        print(g_num)
+        print(type(g_num))
         g_name = "human_" + str(g_num)
         if g_num == 0:
             # tts_srv("Start Find My Mates")
             wave_srv("/fmm/start_fmm")
-        self.bc.rotateAngle(180, 0, 1.0, 5)
+        self.bc.rotateAngle(180, 0, 1.0, 10)
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
         rospy.sleep(0.5)
-        self.navi_srv('living room')
+        self.navi_srv('living')
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
@@ -230,7 +232,8 @@ class GetFeature(smach.State):
     def getAge(self):
         self.old_year = 0
 
-        self.old_year = int(self.getold_srv().result)
+        #self.old_year = int(self.getold_srv().result)
+        self.old_year = self.getold_srv().result
 
         if self.old_year < 20: return " looks under 20"
         elif self.old_year >= 20 and self.old_year < 30: return " looks in the twenties"
