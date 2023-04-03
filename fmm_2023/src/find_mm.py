@@ -191,6 +191,8 @@ class GetFeature(smach.State):
         self.human_dict = {}
         self.loc_name_list = list(self.loc_dict.keys())
         self.loc_name      = "null"
+        
+        
         self.result = 0.00
         self.loc_result = "null"        
         self.bc = BaseControl()
@@ -339,17 +341,17 @@ class GetFeature(smach.State):
         # 使用済みの特徴を使わないようにする
 
         if g_num == 0:
-            self.f1_sentence = "Age is " + self.getAge()
-            self.f2_sentence = "Gender is " + self.getGender()
+            self.f1_sentence = "ClothColor is " + self.getClothColor()
+            self.f2_sentence = self.getGlass() + "glass"
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
-            self.f1_sentence = "ClothColor is " + self.getClothColor()
+            self.f2_sentence = "Gender is " + self.getGender()
             self.f2_sentence = "HairColor is " + self.getHairColor()
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
             self.f1_sentence = "SkinColor is " + self.getSkinColor()
             #glassのリターン変えたほうがいいかも
-            self.f2_sentence = self.getGlass() + "glass"
+            self.f1_sentence = "Age is " + self.getAge()
         else:
             return 'get_feature_finish'
         # 各ゲストの特徴を保存
