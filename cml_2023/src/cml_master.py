@@ -61,7 +61,7 @@ class GraspBag(smach.State):
             rospy.loginfo('No pose data available ...')
             rospy.sleep(1.5)
 
-    # def lrSelect(self):     #rightかleftが10回連続で出たら、連続で出たほうにいくようにする。
+    # def lrSelect(self):     #rightかleftが5回連続で出たら、連続で出たほうにいくようにする。
     #     while self.right_count>=5 and not rospy.is_shutdown():
     #         if self.lrmsg == 'left':
     #             self.left_count += 1
@@ -89,14 +89,14 @@ class GraspBag(smach.State):
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
-        while self.right_count>=5 and not rospy.is_shutdown():
+        while self.right_count>=4 and not rospy.is_shutdown():
             print(self.lrmsg)
             rospy.sleep(1.0)
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
                 print(self.left_count)
-                if self.left_count >= 5:
+                if self.left_count >= 4:
                     break
 
             elif self.lrmsg == 'right':
@@ -128,13 +128,13 @@ class GraspBag(smach.State):
         #         pass
             
         while not rospy.is_shutdown():
-            if self.right_count >= 5:
+            if self.right_count >= 4:
                 #tts_srv("grasp right one")
                 rospy.loginfo('left')
                 self.grasp('left', [0.25, 0.4])
                 break
 
-            elif self.left_count >= 5:
+            elif self.left_count >= 4:
                 #wave_srv("cml/bag_right")
                 #tts_srv("grasp left one")
                 rospy.loginfo('right')
