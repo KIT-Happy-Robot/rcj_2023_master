@@ -155,6 +155,7 @@ class GraspBag(smach.State):
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
             ###追加
+            self.base_control.rotateAngle(170, 0.3)
             rospy.sleep(0.5)
             self.navi('cml')
             rospy.sleep(0.5)
@@ -232,7 +233,7 @@ class Return(smach.State):
     def execute(self, userdate):
         rospy.loginfo('Executing state: RETURN')
         rospy.sleep(0.5)
-        #self.base_control.rotateAngle(170, 0.3)
+        self.base_control.rotateAngle(170, 0.3)
         rospy.sleep(0.5)
         self.navi('cml')
         rospy.sleep(0.5)
