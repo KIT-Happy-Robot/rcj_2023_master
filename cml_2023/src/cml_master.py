@@ -129,14 +129,13 @@ class GraspBag(smach.State):
             
         while not rospy.is_shutdown():
             if self.right_count >= 4:
-                #tts_srv("grasp right one")
+                wave_srv("cml/bag_right")
                 rospy.loginfo('left')
                 self.grasp('left', [0.25, 0.4])
                 break
 
             elif self.left_count >= 4:
-                #wave_srv("cml/bag_right")
-                #tts_srv("grasp left one")
+                wave_srv("cml/bag_left")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
