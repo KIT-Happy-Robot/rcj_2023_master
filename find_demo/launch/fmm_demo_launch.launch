@@ -1,0 +1,11 @@
+<launch>
+  <node name="detect_cloth_color"   pkg="person_feature_extraction" type="detect_cloth_color.py" output="screen"/>
+  <node name="detect_gender" pkg="person_feature_extraction" type="detect_gender.py" output="screen"/>
+  <node name="detect_glass"   pkg="person_feature_extraction" type="detect_glass.py" output="screen"/>
+  <node name="detect_hair_color" pkg="person_feature_extraction" type="detect_hair_color.py" output="screen"/>
+  <node name="detect_old"   pkg="person_feature_extraction" type="detect_old.py" output="screen"/>
+  <node name="height_estimation" pkg="person_feature_extraction" type="height_estimation.py" output="screen"/>
+  <node name="detect_skin_colorv2" pkg="person_feature_extraction" type="detect_skin_colorv2.py" output="screen"/>
+  <node name="find_demo" pkg="find_demo" type="find_demo.py" output="screen"/>
+  <node name="get_feature_srv" pkg="happymimi_voice_common" type="get_feature_srv.py" output="screen"/>
+</launch>
