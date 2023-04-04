@@ -91,7 +91,7 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             print(self.lrmsg)
-            rospy.sleep(1.0)
+            rospy.sleep(0.7)
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
@@ -196,12 +196,12 @@ class Chaser(smach.State):
         while not rospy.is_shutdown():
             rospy.sleep(0.1)
             now_time = time.time() - self.start_time
-            rospy.loginfo('Not_stoping')
-            if self.cmd_sub <= 0.3 and self.find_msg == 'NULL':
+            print(self.cmd_sub)
+            if self.cmd_sub <= 2.0 and self.find_msg == 'NULL':
                 self.find_msg = 'lost_stop'
                 self.start_time = time.time()
                 rospy.loginfo('loststoped')
-            elif self.cmd_sub <= 0.3 and now_time >= 3.0 and self.find_msg == 'lost_stop':
+            elif self.cmd_sub <= 2.0 and now_time >= 3.0 and self.find_msg == 'lost_stop':
                 wave_srv("/cml/car_question")
                 rospy.loginfo('yes_or_no')
                 answer = self.yesno().result
