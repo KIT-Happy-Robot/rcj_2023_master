@@ -86,6 +86,7 @@ class GraspBag(smach.State):
         #tts_srv("which bag should I grasp")
     
         #rospy.sleep(3.0)
+        wave_srv('cml/start_cml')
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
@@ -115,12 +116,14 @@ class GraspBag(smach.State):
         while not rospy.is_shutdown():
             if self.right_count >= 5:
                 wave_srv("cml/bag_right")
+                #tts_srv("right")
                 rospy.loginfo('left')
                 self.grasp('left', [0.25, 0.4])
                 break
 
             elif self.left_count >= 5:
                 wave_srv("cml/bag_left")
+                #tts_srv("left")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
                 break
@@ -187,7 +190,8 @@ class Chaser(smach.State):
                 rospy.loginfo('loststoped')
                 
                 
-            elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
+            #elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
+            elif self.cmd_sub == 0.0 and now_time >= 5.0:
                 wave_srv("/cml/car_question")
                 rospy.loginfo('yes_or_no')
                 answer = self.yesno().result
@@ -204,8 +208,9 @@ class Chaser(smach.State):
 
             elif self.cmd_sub != 0.0:
                 self.find_msg = 'NULL'
+                now_time = 0
 
-            else:
+            else: 
                 pass
             
             ####

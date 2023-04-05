@@ -398,7 +398,7 @@ class Tell(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes = ['tell_finish','all_finish'],
                              input_keys = ['g_num_in','features_in'],
-                             output_keys = ['g_num_out','features_out'])
+                             output_keys = ['g_num_out'])
         self.navi_srv = rospy.ServiceProxy('navi_location_server', NaviLocation)
         self.save_srv = rospy.ServiceProxy('/recognition/save', StrTrg)
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size=1)
@@ -416,7 +416,7 @@ class Tell(smach.State):
     def execute(self, userdata):
         # inputとoutptに気を付ける
         count_num = userdata.g_num_in
-        self.sentence_list = userdata.feature_in
+        #self.sentence_list = userdata.feature_in
         wave_srv("/fmm/move_operator")
         
         # 首の角度を０度に戻す
