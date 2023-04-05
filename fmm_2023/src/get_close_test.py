@@ -83,14 +83,11 @@ class GetClose(smach.State):
         print(g_num)
         print(type(g_num))
         g_name = "human_" + str(g_num)
-        if g_num == 0:
-            # tts_srv("Start Find My Mates")
-            wave_srv("/fmm/start_fmm")
-        self.bc.rotateAngle(180, 0, 1.0, 10)
+        wave_srv("/fmm/start_fmm")
+
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
         rospy.sleep(0.5)
-        self.navi_srv('living')
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
@@ -108,6 +105,7 @@ class GetClose(smach.State):
             self.ap_srv(data = g_name) #g_name
         
         elif g_num == 1:
+            self.navi_srv('living')
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)
@@ -124,6 +122,7 @@ class GetClose(smach.State):
                     self.bc.rotateAngle(-10, 0, 1.0, 5)
         
         elif g_num == 2:
+            self.navi_srv('living')
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)
@@ -156,8 +155,8 @@ class GetClose(smach.State):
 class GetFeature(smach.State):
     def __init__(self):
         smach.State.__init__(self, outcomes = ['get_feature_finish'],
-                             input_keys = ['g_num_in'],
-                             output_keys = ['feature_out'])
+                             input_keys = ['g_num_in'])
+                            #  output_keys = ['feature_out']
         
         #(self, outcomes = ['get_feature_finish'],
         #                     input_keys = ['g_num_in','feature_in'],
@@ -199,126 +198,30 @@ class GetFeature(smach.State):
 
     # 「～さんですか？」って聞いてって名前を特定する関数
     # 画像で名前を判断したいな https://www.panasonic.com/jp/business/its/ocr/ai-ocr.html
- #   def getName(self):
- #       with open(pkl_name_path,"rb") as pf:
-  #          names = pickle.load(pf)
-   #     if names:
-    #        ans_name = ""
-     #       for name in names:
-      #          if name == names[-1]:
-       #             ans_name = names[-1]
-        #            break
-         #       else:
-          #          tts_srv("Are you" + name)
-           #         yes_no = self.yes_no_srv().result
-            #        if yes_no:
-             #           ans_name = name
-              #          break
-               #     else:
-                #        continue
-#            names.remove(ans_name)
- #           with open(pkl_name_path,"wb") as pf:
-  #              pickle.dump(names,pf)
-   #     else:
-    #        ans_name = None
-
-     #   return ans_name
     def getName(self):
-        self.name = "null"
-        for i in range(3):
-            name_res = self.feature_srv(req_data = "fmm name")
-            print (name_res.res_data)
-            if name_res.result:
-                self.name = name_res.res_data
-                tts_srv("Hi " + self.name)
-                break
-            elif i == 3:
-                break
-                # tts_srv("Sorry. I'm going to ask you one more time.")
-            else:
-                wave_srv("/fmm/ask_again")
-                self.name = "guest"
-        return self.name
+        with open(pkl_name_path,"rb") as pf:
+            names = pickle.load(pf)
+        if names:
+            ans_name = ""
+            for name in names:
+                if name == names[-1]:
+                    ans_name = names[-1]
+                    break
+                else:
+                    tts_srv("Are you" + name)
+                    yes_no = self.yes_no_srv().result
+                    if yes_no:
+                        ans_name = name
+                        break
+                    else:
+                        continue
+            names.remove(ans_name)
+            with open(pkl_name_path,"wb") as pf:
+                pickle.dump(names,pf)
+        else:
+            ans_name = None
 
-
-    # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
-    # 　服の色検出：　https://github.com/KIT-Happy-Robot/happymimi_recognition/blob/master/person_feature_extraction/src/detect_cloth_color.py
-    # 　眼鏡のありなし：　https://github.com/KIT-Happy-Robot/happymimi_recognition/blob/master/person_feature_extraction/src/detect_glass.py
-    # 　髪の色：　https://github.com/KIT-Happy-Robot/happymimi_recognition/blob/master/person_feature_extraction/src/detect_hair_color.py
-    # 
-    # 使用済みの特徴を飛ばすシステムを作りたいよね
-    def getAge(self):
-        self.old_year = 0
-
-        #self.old_year = int(self.getold_srv().result)
-        self.old_year = int(self.getold_srv().result)
-
-        if self.old_year < 20: return " looks under 20"
-        elif self.old_year >= 20 and self.old_year < 30: return " looks in the twenties"
-        elif self.old_year >= 30 and self.old_year < 40: return " looks in the 30s"
-        elif self.old_year >= 40 and self.old_year < 50: return " looks in the 40s"
-        elif self.old_year >= 50 and self.old_year < 60: return " looks in the 50s"
-        elif self.old_year >= 60 and self.old_year < 70: return " looks in the 60s"
-        else:
-            return "so old!!" 
-
-    # https://github.com/KIT-Happy-Robot/rcj_2022_master/blob/develop/find_my_mates2022/src/fmmmod.py
-    def getGender(self, msg):
-        self.sex = "null"
-        res = self.getgender_srv(msg)
-        if res.result:
-            self.sex=res.result_data 
-        else:
-            self.sex = "null"
-        tts_srv("You are " + self.sex)
-        rospy.loginfo(self.sex)
-        return self.sex
-        
-    def getHight(self):
-        self.head_pub.publish(0)
-        # 全身を収めるために後ろへ下がる
-        self.base_control.translateDist(-0.5,0.2)
-        
-        height = SetFloat()
-        height = self.height_srv()
-        
-        if height.data == -1:
-            return False
-        else:
-            self.height = str(round(height.data))
-            return self.height
-            
-    def getClothColor(self):
-        self.cloth_color = "null"
-        self.cloth_color = self.cloth_srv().result
-        if self.cloth_color == '':
-            return "none"
-        else:
-            return self.cloth_color
-            
-    def getHairColor(self):
-        self.hair_color = "null"
-        self.hair_color = self.hair_srv().result
-        if self.hair_color == '':
-            return "none"
-        else:
-            return self.hair_color
-            
-    def getSkinColor(self):
-        self.skin_color = "null"
-        self.skin_color =  self.skin_srv().result
-        if self.skin_color == '':
-            return "none"
-        else:
-            return self.skin_color
-            
-    def getGlass(self):# わからんから適当
-        #self.glass = "null"
-        self.glass_result = self.glass_srv().result # T/F
-        if self.glass_result:
-            return 'wearing'
-        else:
-            return "no wearing"
+        return ans_name
 
     def getLocInfo(self, target_name):
         self.loc_name = "null"
@@ -351,32 +254,11 @@ class GetFeature(smach.State):
         #wave_srv("/fmm/start_q")
         self.guest_name = self.getName()
         g_num = userdata.g_num_in
-        #print (self.guest_name)
+        #print(self.guest_name)
         self.guest_loc = self.getLocInfo("human_" + str(g_num))
         self.gn_sentence = str(self.guest_name) + " is near " + str(self.guest_loc)
-        # 使用済みの特徴を使わないようにする
 
-        if g_num == 0:
-            #self.f1_sentence = "ClothColor is " + self.getClothColor()
-            self.f1_sentence = "Age is " + self.getAge()
-            #self.f2_sentence = self.getGlass() + "glass"
-            self.f2_sentence = "Gender is " + self.getGender()
-            
-        # g_numが1だったら、2人目の方を～～
-        elif g_num == 1:
-            self.f2_sentence = "Gender is " + self.getGender()
-            self.f2_sentence = "HairColor is " + self.getHairColor()
-        # g_numが2だったら、3人目の方を～～
-        elif g_num == 2:
-            self.f1_sentence = "SkinColor is " + self.getSkinColor()
-            #glassのリターン変えたほうがいいかも
-            self.f1_sentence = "Age is " + self.getAge()
-        else:
-            return 'get_feature_finish'
-        # 各ゲストの特徴を保存
-        # tts_srv("Thank you for your cooperation")
-        wave_srv("/fmm/finish_q")
-        userdata.feature_out = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
+        # userdata.feature_out = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
         return 'get_feature_finish'
 
 # ゲスト度に取得した特徴２つをオペレーターへ伝える状態
@@ -413,8 +295,8 @@ class Tell(smach.State):
         # オペレーターへ自律移動
         self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
-        self.navi_srv('operator')
-        navi_result = self.navi_srv('operator').result
+        self.navi_srv('living')
+        navi_result = self.navi_srv('living').result
         rospy.sleep(0.2)
         #　首を上げる
         self.head_pub.publish(-20)
@@ -467,7 +349,7 @@ class Tell(smach.State):
     # outcome = sm.execute()
 
 if __name__=='__main__':
-    rospy.init_node('find_mm')
+    rospy.init_node('fmm_all_debag')
     rospy.loginfo("Start Find My Mates")
 
     # sm = smach()

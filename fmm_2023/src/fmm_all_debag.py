@@ -83,14 +83,11 @@ class GetClose(smach.State):
         print(g_num)
         print(type(g_num))
         g_name = "human_" + str(g_num)
-        if g_num == 0:
-            # tts_srv("Start Find My Mates")
-            wave_srv("/fmm/start_fmm")
-        self.bc.rotateAngle(180, 0, 1.0, 10)
+        wave_srv("/fmm/start_fmm")
+
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
         rospy.sleep(0.5)
-        self.navi_srv('living')
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
@@ -108,6 +105,7 @@ class GetClose(smach.State):
             self.ap_srv(data = g_name) #g_name
         
         elif g_num == 1:
+            self.navi_srv('living')
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)
@@ -124,6 +122,7 @@ class GetClose(smach.State):
                     self.bc.rotateAngle(-10, 0, 1.0, 5)
         
         elif g_num == 2:
+            self.navi_srv('living')
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)
@@ -199,46 +198,30 @@ class GetFeature(smach.State):
 
     # 「～さんですか？」って聞いてって名前を特定する関数
     # 画像で名前を判断したいな https://www.panasonic.com/jp/business/its/ocr/ai-ocr.html
- #   def getName(self):
- #       with open(pkl_name_path,"rb") as pf:
-  #          names = pickle.load(pf)
-   #     if names:
-    #        ans_name = ""
-     #       for name in names:
-      #          if name == names[-1]:
-       #             ans_name = names[-1]
-        #            break
-         #       else:
-          #          tts_srv("Are you" + name)
-           #         yes_no = self.yes_no_srv().result
-            #        if yes_no:
-             #           ans_name = name
-              #          break
-               #     else:
-                #        continue
-#            names.remove(ans_name)
- #           with open(pkl_name_path,"wb") as pf:
-  #              pickle.dump(names,pf)
-   #     else:
-    #        ans_name = None
-
-     #   return ans_name
     def getName(self):
-        self.name = "null"
-        for i in range(3):
-            name_res = self.feature_srv(req_data = "fmm name")
-            print (name_res.res_data)
-            if name_res.result:
-                self.name = name_res.res_data
-                tts_srv("Hi " + self.name)
-                break
-            elif i == 3:
-                break
-                # tts_srv("Sorry. I'm going to ask you one more time.")
-            else:
-                wave_srv("/fmm/ask_again")
-                self.name = "guest"
-        return self.name
+        with open(pkl_name_path,"rb") as pf:
+            names = pickle.load(pf)
+        if names:
+            ans_name = ""
+            for name in names:
+                if name == names[-1]:
+                    ans_name = names[-1]
+                    break
+                else:
+                    tts_srv("Are you" + name)
+                    yes_no = self.yes_no_srv().result
+                    if yes_no:
+                        ans_name = name
+                        break
+                    else:
+                        continue
+            names.remove(ans_name)
+            with open(pkl_name_path,"wb") as pf:
+                pickle.dump(names,pf)
+        else:
+            ans_name = None
+
+        return ans_name
 
 
     # 画像認識の特徴取得系： hm_recognition/person_feature_extraction/src
@@ -251,7 +234,7 @@ class GetFeature(smach.State):
         self.old_year = 0
 
         #self.old_year = int(self.getold_srv().result)
-        self.old_year = int(self.getold_srv().result)
+        self.old_year = self.getold_srv().result
 
         if self.old_year < 20: return " looks under 20"
         elif self.old_year >= 20 and self.old_year < 30: return " looks in the twenties"
@@ -413,8 +396,8 @@ class Tell(smach.State):
         # オペレーターへ自律移動
         self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
-        self.navi_srv('operator')
-        navi_result = self.navi_srv('operator').result
+        self.navi_srv('living')
+        navi_result = self.navi_srv('living').result
         rospy.sleep(0.2)
         #　首を上げる
         self.head_pub.publish(-20)
@@ -467,7 +450,7 @@ class Tell(smach.State):
     # outcome = sm.execute()
 
 if __name__=='__main__':
-    rospy.init_node('find_mm')
+    rospy.init_node('fmm_all_debag')
     rospy.loginfo("Start Find My Mates")
 
     # sm = smach()
