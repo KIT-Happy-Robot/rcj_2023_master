@@ -504,7 +504,7 @@ if __name__=='__main__':
                                Tell(),
                                transitions = {"tell_finish":"GetClose",
                                               "all_finish":"fmm_finish"},
-                               remapping = {"feature_in":"features"
+                               remapping = {"feature_in":"features",
                                             "g_num_in":"g_num",
                                             "g_num_out":"g_num"})
     outcome = sm.execute()
