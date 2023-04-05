@@ -171,7 +171,7 @@ class GetFeature(smach.State):
         self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
         self.cloth_color_srv = rospy.ServiceProxy('/person_feature/cloth_color',SetStr)
         self.getold_srv = rospy.ServiceProxy('/person_feature/old', SetStr)
-        self.getgender_srv = rospy.ServiceProxy('/gender_jg', StringToString)
+        self.getgender_srv = rospy.ServiceProxy('/person_feature/gender', SetStr)
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
@@ -263,13 +263,14 @@ class GetFeature(smach.State):
             return "so old!!" 
 
     # https://github.com/KIT-Happy-Robot/rcj_2022_master/blob/develop/find_my_mates2022/src/fmmmod.py
-    def getGender(self, msg):
+    def getGender(self, msg=[""]):
         self.sex = "null"
-        res = self.getgender_srv(msg)
-        if res.result:
-            self.sex=res.result_data 
-        else:
+        res = self.getgender_srv()
+        if res.result == "":
+            #self.sex=res.result_data 
             self.sex = "null"
+        else:
+            self.sex = res.result
         tts_srv("You are " + self.sex)
         rospy.loginfo(self.sex)
         return self.sex
@@ -357,26 +358,28 @@ class GetFeature(smach.State):
         # 使用済みの特徴を使わないようにする
 
         if g_num == 0:
-            self.bc.translateDist(-1.0, 0.2)
+            self.bc.translateDist(-0.4, 0.2)
 
             #self.f1_sentence = "ClothColor is " + self.getClothColor()
             print('startglass')
             self.f1_sentence = "Glass is " + self.getGlass()
-            print(self.getGlass().result)
+            print(self.f1_sentence)
             #self.f2_sentence = self.getGlass() + "glass"
             self.f2_sentence = "Gender is " + self.getGender()
+            print(self.f2_sentence)
+
 
             
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
-            self.bc.translateDist(-1.0, 0.2)
+            self.bc.translateDist(-0.4, 0.2)
 
             self.f2_sentence = "Age is " + self.getAge()
             self.f2_sentence = "ClothColor is " + self.getClothColor()
             
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
-            self.bc.translateDist(-1.0, 0.2)
+            self.bc.translateDist(-0.4, 0.2)
 
             self.f1_sentence = "HairColor is " + self.getHairColor()
             #glassのリターン変えたほうがいいかも
@@ -501,5 +504,7 @@ if __name__=='__main__':
                                Tell(),
                                transitions = {"tell_finish":"GetClose",
                                               "all_finish":"fmm_finish"},
-                               remapping = {"feature_in":"features"})
+                               remapping = {"feature_in":"features"
+                                            "g_num_in":"g_num",
+                                            "g_num_out":"g_num"})
     outcome = sm.execute()
