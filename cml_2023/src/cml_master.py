@@ -105,30 +105,12 @@ class GraspBag(smach.State):
                 print("right_count = ",self.right_count)
                 if self.right_count >= 5:
                     break
-
-
             else:
                 # self.left_count = 0
                 # self.right_count = 0
                 pass
 
         print("step2")
-        
-        # while not rospy.is_shutdown():
-        #     if self.lrmsg == 'right':
-        #         #tts_srv("grasp right one")
-        #         rospy.loginfo('right')
-        #         self.grasp('right', [0.25, 0.4])
-        #         break
-
-        #     elif self.lrmsg == 'left':
-        #         wave_srv("cml/bag_right")
-        #         rospy.loginfo('left')
-        #       #  tts_srv("grasp left one")
-        #         self.grasp('left', [0.25, 0.4])
-        #         break
-        #     else: 
-        #         pass
             
         while not rospy.is_shutdown():
             if self.right_count >= 5:
@@ -197,45 +179,42 @@ class Chaser(smach.State):
             rospy.sleep(0.1)
             now_time = time.time() - self.start_time
             print(self.cmd_sub)
-            # if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
-            #     self.find_msg = 'lost_stop'
-            #     self.start_time = time.time()
-            #     rospy.loginfo('loststoped')
-            # elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
-            #     wave_srv("/cml/car_question")
-            #     rospy.loginfo('yes_or_no')
-            #     answer = self.yesno().result
-            #     if answer:
-            #         self.chase.publish('stop')
-            #         # self.base_control.rotateAngle(0, 0)
-            #         # self.base_control.translateDist(-0.3)
-            #         wave_srv('/cml/give_bag')
-            #         self.arm('give')
-            #         wave_srv('/cml/return_start')
-            #         return 'chaser_finish'
             if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
                 self.find_msg = 'lost_stop'
                 self.start_time = time.time()
                 rospy.loginfo('loststoped')
-            elif self.cmd_sub == 0.0 and now_time >= 4.0:
-                if self.find_msg == 'lost_stop':
-                    wave_srv("/cml/car_question")
-                    rospy.loginfo('yes_or_no')
-                    answer = self.yesno().result
-                    if answer:
-                        self.chase.publish('stop')
-                        # self.base_control.rotateAngle(0, 0)
-                        # self.base_control.translateDist(-0.3)
-                        wave_srv('/cml/give_bag')
-                        self.arm('give')
-                        wave_srv('/cml/return_start')
-                        return 'chaser_finish'
-
-                    else:
-                        wave_srv("cml/follow_cont")
-                        
+            elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
+                wave_srv("/cml/car_question")
+                rospy.loginfo('yes_or_no')
+                answer = self.yesno().result
+                if answer:
+                    self.chase.publish('stop')
+                    # self.base_control.rotateAngle(0, 0)
+                    # self.base_control.translateDist(-0.3)
+                    wave_srv('/cml/give_bag')
+                    self.arm('give')
+                    wave_srv('/cml/return_start')
+                    return 'chaser_finish'
                 else:
-                    pass
+                    wave_srv("cml/follow_cont")
+            # if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
+            #     self.find_msg = 'lost_stop'
+            #     self.start_time = time.time()
+            #     rospy.loginfo('loststoped')
+            # elif self.cmd_sub == 0.0 and now_time >= 4.0:
+            #     if self.find_msg == 'lost_stop':
+            #         wave_srv("/cml/car_question")
+            #         rospy.loginfo('yes_or_no')
+            #         answer = self.yesno().result
+            #         if answer:
+            #             self.chase.publish('stop')
+            #             # self.base_control.rotateAngle(0, 0)
+            #             # self.base_control.translateDist(-0.3)
+            #             wave_srv('/cml/give_bag')
+            #             self.arm('give')
+            #             wave_srv('/cml/return_start')
+            #             return 'chaser_finish'
+
 
             elif self.cmd_sub != 0.0:
                 self.find_msg = 'NULL'
