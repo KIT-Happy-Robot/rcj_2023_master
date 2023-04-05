@@ -91,7 +91,7 @@ class GraspBag(smach.State):
         print(self.lrmsg)
         while not rospy.is_shutdown():
             print(self.lrmsg)
-            rospy.sleep(0.7)
+            rospy.sleep(0.6)
             if self.lrmsg == 'left':
                 self.left_count += 1
                 self.right_count = 0
