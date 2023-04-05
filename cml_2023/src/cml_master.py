@@ -230,18 +230,12 @@ class Chaser(smach.State):
 
             #                 else:
             #                     wave_srv("cml/follow_cont")
-<<<<<<< HEAD
-
-            #     elif self.cmd_sub != 0.0:
-            #         self.find_msg = 'NULL'
-=======
             #                     print("continue")
             #         else: pass
 
             #     elif self.cmd_sub != 0.0:
             #         self.find_msg = 'NULL'
             #         print("!=0.0, NULL")
->>>>>>> bd5db8db5115d70b3efa37e7644b0e0c9fa9dcb6
 
             #     else:
             #         pass
