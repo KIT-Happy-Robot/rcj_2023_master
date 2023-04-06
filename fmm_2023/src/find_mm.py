@@ -389,7 +389,12 @@ class GetFeature(smach.State):
         # 各ゲストの特徴を保存
         # tts_srv("Thank you for your cooperation")
         wave_srv("/fmm/finish_q")
-        userdata.feature_out = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
+        print(self.f1_sentence)
+        print(self.f2_sentence)
+        #userdata.feature_out = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
+        feature_list = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
+        userdata.feature_out = []
+        userdata.feature_out = feature_list
         return 'get_feature_finish'
 
 # ゲスト度に取得した特徴２つをオペレーターへ伝える状態
@@ -397,14 +402,14 @@ class Tell(smach.State):
 
     def __init__(self):
         smach.State.__init__(self, outcomes = ['tell_finish','all_finish'],
-                             input_keys = ['g_num_in','features_in'],
+                             input_keys = ['g_num_in','feature_in'],
                              output_keys = ['g_num_out'])
         self.navi_srv = rospy.ServiceProxy('navi_location_server', NaviLocation)
         self.save_srv = rospy.ServiceProxy('/recognition/save', StrTrg)
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size=1)
         self.bc = BaseControl()
         self.sentence_list = []
-        self.data_path = roslib.packages.get_pkg_dir("find_my_mates2022") + "/guest_info/"
+        self.data_path = roslib.packages.get_pkg_dir("fmm_2023") + "/guest_info/"
         
     def saveInfo(self, name, data):
         rospy.loginfo('Save feature')
@@ -416,7 +421,10 @@ class Tell(smach.State):
     def execute(self, userdata):
         # inputとoutptに気を付ける
         count_num = userdata.g_num_in
-        #self.sentence_list = userdata.feature_in
+        self.sentence_list = userdata.feature_in
+        print(userdata.feature_in)
+        print(userdata.g_num_in)
+        print(self.sentence_list)
         wave_srv("/fmm/move_operator")
         
         # 首の角度を０度に戻す
@@ -426,7 +434,7 @@ class Tell(smach.State):
         # オペレーターへ自律移動
         self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
-        self.navi_srv('operator')
+        #self.navi_srv('operator')
         navi_result = self.navi_srv('operator').result
         rospy.sleep(0.2)
         #　首を上げる
@@ -440,7 +448,7 @@ class Tell(smach.State):
         else:
             # tts_srv("I'm sorry. I couldn't navigate to the operator's location. I will provide the features from here.")
             wave_srv("/fmm/start_req_here")
-        print(self.sentence_list)
+        #print(self.sentence_list)
         for i in range(len(self.sentence_list)):
             tts_srv(self.sentence_list[i])
             i += 1
@@ -499,7 +507,8 @@ if __name__=='__main__':
                                transitions = {"get_feature_finish":"Tell"},
                                remapping = {"g_num_in":"g_num",
                                             "g_num_out":"g_num",
-                                            "features_in":"features"})
+                                            "features_in":"features",
+                                            "feature_out":"features"})
         smach.StateMachine.add("Tell",
                                Tell(),
                                transitions = {"tell_finish":"GetClose",
