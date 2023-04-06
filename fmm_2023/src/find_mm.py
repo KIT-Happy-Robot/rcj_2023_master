@@ -434,7 +434,7 @@ class Tell(smach.State):
         self.bc.rotateAngle(110, 0, 0.2, 5)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
-        navi_result = self.navi_srv('operator').result
+        navi_result = self.navi_srv('Operator').result
         rospy.sleep(0.2)
         #　首を上げる
         self.head_pub.publish(-20)

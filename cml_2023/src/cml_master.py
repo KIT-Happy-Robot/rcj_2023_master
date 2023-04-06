@@ -181,17 +181,17 @@ class Chaser(smach.State):
         while not rospy.is_shutdown():
             rospy.sleep(0.1)
             now_time = time.time() - self.start_time
-            #print(self.cmd_sub)
-            #print("nt = ",now_time)
+            print(self.cmd_sub)
+            print("nt = ",now_time)
             ####
-            #if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
-            if self.cmd_sub == 0.0:
-                #self.find_msg = 'lost_stop'
+            if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
+            #if self.cmd_sub == 0.0:
+                self.find_msg = 'lost_stop'
                 self.start_time = time.time()
-                #rospy.loginfo('loststoped')
+                rospy.loginfo('loststoped')
                 
-            #elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
-            elif self.cmd_sub == 0.0 and now_time >= 5.0:
+            elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
+            #elif self.cmd_sub == 0.0 and now_time >= 5.0:
                 wave_srv("/cml/car_question")
                 rospy.loginfo('yes_or_no')
                 answer = self.yesno().result
@@ -207,10 +207,13 @@ class Chaser(smach.State):
                     wave_srv("cml/follow_cont")
 
             elif self.cmd_sub != 0.0:
-                print(self.cmd_sub)
-                print("nt = ",now_time)
-                #self.find_msg = 'NULL'
-                now_time = 0
+                #print(self.cmd_sub)
+                #print("nt = ",now_time)
+                self.find_msg = 'NULL'
+                #now_time = 0
+            
+            else:
+                pass
             
             ####
             # if self.cmd_sub == 0.0:
