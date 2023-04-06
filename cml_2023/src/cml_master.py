@@ -182,13 +182,14 @@ class Chaser(smach.State):
             rospy.sleep(0.1)
             now_time = time.time() - self.start_time
             #print(self.cmd_sub)
-            print("nt = ",now_time)
+            #print("nt = ",now_time)
             ####
             #if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
             if self.cmd_sub == 0.0:
                 #self.find_msg = 'lost_stop'
                 self.start_time = time.time()
                 #rospy.loginfo('loststoped')
+                print("nt = ",now_time)
                 
             #elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
             elif self.cmd_sub == 0.0 and now_time >= 5.0:
@@ -208,8 +209,9 @@ class Chaser(smach.State):
 
             elif self.cmd_sub != 0.0:
                 print(self.cmd_sub)
+                #print("nt = ",now_time)
                 #self.find_msg = 'NULL'
-                now_time = 0
+                #now_time = 0
 
             else: 
                 pass
