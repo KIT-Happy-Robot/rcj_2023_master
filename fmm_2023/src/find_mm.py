@@ -102,7 +102,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-5, 0, 0.5, 5)
+            #self.bc.rotateAngle(-5, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = g_name) #g_name
@@ -114,7 +114,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-5, 0, 0.5, 5)
+            self.bc.rotateAngle(-10, 0, 0.5, 5)
             for i in range(3):
                 result = self.coord_gen_srv().result
                 print(result)
@@ -130,6 +130,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
+            self.bc.translateDist(0.5,0.2)
             self.bc.rotateAngle(-80, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
@@ -374,7 +375,7 @@ class GetFeature(smach.State):
         elif g_num == 1:
             self.bc.translateDist(-0.4, 0.2)
 
-            self.f2_sentence = "Age is " + self.getAge()
+            self.f1_sentence = "Age is " + self.getAge()
             self.f2_sentence = "ClothColor is " + self.getClothColor()
             
         # g_numが2だったら、3人目の方を～～
@@ -383,7 +384,8 @@ class GetFeature(smach.State):
 
             self.f1_sentence = "HairColor is " + self.getHairColor()
             #glassのリターン変えたほうがいいかも
-            self.f1_sentence = "Age is " + self.getAge()
+            #self.f2_sentence = "Age is " + self.getAge()
+            self.f2_sentence = "Hight is" + self.getHight()
         else:
             return 'get_feature_finish'
         # 各ゲストの特徴を保存
