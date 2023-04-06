@@ -86,11 +86,11 @@ class GetClose(smach.State):
         if g_num == 0:
             # tts_srv("Start Find My Mates")
             wave_srv("/fmm/start_fmm")
-        # self.bc.rotateAngle(180, 0, 1.0, 10)
+        self.bc.rotateAngle(180, 0, 1.0, 10)
         # 隣の部屋（Living_room）まで移動 
         wave_srv("/fmm/move_guest")  # tts_srv("Move to guest")に等しい
-        # rospy.sleep(0.5)
-        # self.navi_srv('living')
+        rospy.sleep(0.5)
+        self.navi_srv('living')
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
@@ -393,7 +393,6 @@ class GetFeature(smach.State):
         print(self.f2_sentence)
         #userdata.feature_out = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
         feature_list = [self.gn_sentence, self.f1_sentence, self.f2_sentence]
-        userdata.feature_out = []
         userdata.feature_out = feature_list
         return 'get_feature_finish'
 
