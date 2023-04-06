@@ -61,6 +61,26 @@ class GraspBag(smach.State):
             rospy.loginfo('No pose data available ...')
             rospy.sleep(1.5)
 
+    # def lrSelect(self):     #rightかleftが5回連続で出たら、連続で出たほうにいくようにする。
+    #     while self.right_count>=5 and not rospy.is_shutdown():
+    #         if self.lrmsg == 'left':
+    #             self.left_count += 1
+    #             self.right_count = 0
+    #             print(self.left_count)
+    #             if self.left_count >= 5:
+    #                 break
+
+    #         elif self.lrmsg == 'right':
+    #             self.right_count += 1
+    #             self.left_count = 0
+    #             print(self.right_count)
+
+    #         else:
+    #             # self.left_count = 0
+    #             # self.right_count = 0
+    #             pass
+
+
     def execute(self, userdate):
         #answer = self.grasp().result
         #tts_srv("which bag should I grasp")
@@ -133,7 +153,7 @@ class GraspBag(smach.State):
             return 'grasp_finish'
 
 
-class Chaser(smach.State):      #!=0.0のとこに
+class Chaser(smach.State):      #cmd_count,timeup
     def __init__(self):
         smach.State.__init__(self,outcomes=['chaser_finish'])
 
@@ -148,6 +168,7 @@ class Chaser(smach.State):      #!=0.0のとこに
         self.start_time = time.time()
         self.find_msg = 'NULL'
         self.cmd_sub = 0.0
+        self.cmd_count = 0
 
     def findCB(self, receive_msg):
         self.find_msg = receive_msg.data
@@ -164,16 +185,17 @@ class Chaser(smach.State):      #!=0.0のとこに
             #print(self.cmd_sub)
             #print("nt = ",now_time)
             ####
-            # if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
-            # #if self.cmd_sub == 0.0:
-            #     self.find_msg = 'lost_stop'
-            #     self.start_time = time.time()
-            #     #rospy.loginfo('loststoped')
-            #     print("0.0 nt = ",now_time)
+            #if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
+            if self.cmd_sub == 0.0:
+                #self.find_msg = 'lost_stop'
+                #self.start_time = time.time()
+                #rospy.loginfo('loststoped')
+                #print("0.0 nt = ",now_time)
+                self.cmd_count += 1
                 
             #elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
             #elif self.cmd_sub == 0.0 and now_time >= 5.0:
-            if self.cmd_sub == 0.0 and now_time >= 5.0:
+            if self.cmd_sub == 0.0 and self.cmd_count >= 20:
                 wave_srv("/cml/car_question")
                 rospy.loginfo('yes_or_no')
                 answer = self.yesno().result
@@ -190,12 +212,13 @@ class Chaser(smach.State):      #!=0.0のとこに
 
             elif self.cmd_sub != 0.0:
                 print(self.cmd_sub)
-                print("nt = ",now_time)
+                #print("nt = ",now_time)
                 #self.find_msg = 'NULL'
                 #now_time = 0
-                ###追加
-                self.start_time = time.time()
-                ###
+                self.cmd_count = 0
+
+            elif self.cmd_count >= 40:
+                return 'chaser_finish'
 
             else: 
                 pass
