@@ -99,7 +99,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-5, 0, 0.5, 5)
+            self.bc.rotateAngle(-5, 0, 0.5, 5) 
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = g_name) #g_name
