@@ -70,22 +70,20 @@ class Chaser(smach.State):
                 print("0.0 nt = ",now_time)
                 self.cmd_count += 1
                 
-            #elif self.cmd_sub == 0.0 and now_time >= 4.0 and self.find_msg == 'lost_stop':
-            #elif self.cmd_sub == 0.0 and now_time >= 5.0:
-            elif now_time >= 5.0:
-                wave_srv("/cml/car_question")
-                rospy.loginfo('yes_or_no')
-                answer = self.yesno().result
-                if answer:
-                    self.chase.publish('stop')
-                    # self.base_control.rotateAngle(0, 0)
-                    # self.base_control.translateDist(-0.3)
-                    wave_srv('/cml/give_bag')
-                    self.arm('give')
-                    wave_srv('/cml/return_start')
-                    return 'chaser_finish'
-                else:
-                    wave_srv("cml/follow_cont")
+                if now_time >= 5.0:
+                    wave_srv("/cml/car_question")
+                    rospy.loginfo('yes_or_no')
+                    answer = self.yesno().result
+                    if answer:
+                        self.chase.publish('stop')
+                        # self.base_control.rotateAngle(0, 0)
+                        # self.base_control.translateDist(-0.3)
+                        wave_srv('/cml/give_bag')
+                        self.arm('give')
+                        wave_srv('/cml/return_start')
+                        return 'chaser_finish'
+                    else:
+                        wave_srv("cml/follow_cont")
 
             elif self.cmd_sub != 0.0:
                 print(self.cmd_sub)
