@@ -114,7 +114,8 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-30, 0, 0.5, 5)
+            self.bc.rotateAngle(-10, 0, 0.5, 5)
+            rospy.sleep(1.0)
             self.bc.translateDist(0.5,0.2)
             
             rospy.set_param("/map_range/max_x",2.8)
@@ -433,7 +434,7 @@ class Tell(smach.State):
         rospy.sleep(0.2)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(110, 0, 0.2, 5)
+        self.bc.rotateAngle(180, 0, 0.2, 5)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
         navi_result = self.navi_srv('Operator').result
