@@ -116,33 +116,34 @@ class GraspBag(smach.State):
         if self.front_laser_dist > 0.2:
             return 'grasp_finish'
 
-        # elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
-        #     rospy.loginfo('Executing state: GRASP')
-        #     rospy.sleep(0.5)
-        #     ###追加
-        #     self.base_control.rotateAngle(170, 0.3)
-        #     rospy.sleep(0.5)
-        #     self.navi('cml')
-        #     rospy.sleep(0.5)
-        #     ###
-        #     self.GB_count += 1
-        #     return 'grasp_retry'
-
-        elif self.front_laser_dist <= 0.2 and self.GB_count == 0:   #rotateAngle 引数四つのほうがいいかも
+        elif self.front_laser_dist <= 0.2 and self.GB_count == 0:
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
             ###追加
-            self.base_control.translateDist(0.5)
-            if self.left_count >= 5:    #右
-                self.base_control.rotateAngle(-30, 0.3)
-
-            elif self.right_count >= 5: #左
-                self.base_control.rotateAngle(30, 0.3)
-            
-            self.base_control.translateDist(1.0)
+            self.base_control.rotateAngle(170, 0.3)
+            rospy.sleep(0.5)
+            self.navi('cml')
+            rospy.sleep(0.5)
             ###
             self.GB_count += 1
             return 'grasp_retry'
+
+        # elif self.front_laser_dist <= 0.2 and self.GB_count == 0:   #rotateAngle 引数四つのほうがいいかも
+        #     rospy.loginfo('Executing state: GRASP')
+        #     rospy.sleep(0.5)
+        #     print('retry')
+        #     ###追加
+        #     self.base_control.translateDist(-0.4)
+        #     if self.left_count >= 5:    #右
+        #         self.base_control.rotateAngle(20, 0, 0.5, 5)
+
+        #     elif self.right_count >= 5: #左
+        #         self.base_control.rotateAngle(-20, 0, 0.5, 5)
+            
+        #     self.base_control.translateDist(-0.9)
+        #     ###
+        #     self.GB_count += 1
+        #     return 'grasp_retry'
 
         
 
