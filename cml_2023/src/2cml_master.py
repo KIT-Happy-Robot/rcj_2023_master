@@ -66,7 +66,7 @@ class GraspBag(smach.State):
         #tts_srv("which bag should I grasp")
     
         #rospy.sleep(3.0)
-        wave_srv('cml/start_cml')
+        wave_srv('/cml/start_cml')
         self.subscribeCheck()
         rospy.sleep(1.5)
         print(self.lrmsg)
@@ -95,14 +95,14 @@ class GraspBag(smach.State):
             
         while not rospy.is_shutdown():
             if self.right_count >= 5:
-                wave_srv("cml/bag_right")
+                wave_srv("/cml/bag_right")
                 #tts_srv("right")
                 rospy.loginfo('left')
                 self.grasp('left', [0.25, 0.4])
                 break
 
             elif self.left_count >= 5:
-                wave_srv("cml/bag_left")
+                wave_srv("/cml/bag_left")
                 #tts_srv("left")
                 rospy.loginfo('right')
                 self.grasp('right', [0.25, 0.4])
@@ -202,7 +202,7 @@ class Chaser(smach.State):      #timeup
                         wave_srv('/cml/return_start')
                         return 'chaser_finish'
                     else:
-                        wave_srv("cml/follow_cont")
+                        wave_srv("/cml/follow_cont")
 
             elif self.cmd_sub != 0.0:
                 print(self.cmd_sub)
