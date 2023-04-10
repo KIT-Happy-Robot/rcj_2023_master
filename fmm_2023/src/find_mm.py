@@ -114,15 +114,15 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-10, 0, 0.5, 5)
-            for i in range(3):
-                result = self.coord_gen_srv().result
-                print(result)
-                if result:
-                    self.ap_srv(data = g_name)
-                else:
-                    self.bc.rotateAngle(-10, 0, 1.0, 5)
-        
+            self.bc.rotateAngle(-30, 0, 0.5, 5)
+            self.bc.translateDist(0.5,0.2)
+            
+            rospy.set_param("/map_range/max_x",2.8)
+            rospy.set_param("/map_range/min_y",1.5)
+            result = self.coord_gen_srv().result
+            print(result)
+            self.ap_srv(data = g_name)
+                
         elif g_num == 2:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
