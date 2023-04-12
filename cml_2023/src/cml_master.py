@@ -42,12 +42,8 @@ class GraspBag(smach.State):
         rospy.Subscriber("/left_right_recognition", String, self.LRCB)
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
-<<<<<<< HEAD
         self.grasp = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
         # self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
-=======
-        self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
->>>>>>> 7a354a48f2fe270b182bcf7c81ba450b30b52bae
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
 
         self.eef = rospy.Subscriber('/servo/endeffector', Bool)
@@ -131,23 +127,23 @@ class GraspBag(smach.State):
             rospy.sleep(0.5)
             ##追加
             self.base_control.translateDist(-0.3)
-            self.base_control.rotateAngle(170, 0.3)
-            rospy.sleep(0.5)
-            self.navi('cml')
-            rospy.sleep(0.5)
+            # self.base_control.rotateAngle(170, 0.3)
+            # rospy.sleep(0.5)
+            # self.navi('cml')
+            # rospy.sleep(0.5)
             
             ###
             
-            # self.base_control.translateDist(-0.3)
-            # self.sleep(1.0)
-            # dist_to_bag = self.FB.bagFocus('all', 100)
-            # self.base_control.rotateAngle(4.0, 1, 0.7, 20)
-            # rospy.sleep(0.5)
-            # self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
-            # rospy.sleep(0.5)
-            # self.eef_pub.publish(True)
-            # rospy.sleep(0.5)
-            # self.arm_pose('carry')
+            self.base_control.translateDist(-0.3)
+            self.sleep(1.0)
+            dist_to_bag = self.FB.bagFocus('all', 100)
+            self.base_control.rotateAngle(4.0, 1, 0.7, 20)
+            rospy.sleep(0.5)
+            self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
+            rospy.sleep(0.5)
+            self.eef_pub.publish(True)
+            rospy.sleep(0.5)
+            self.arm_pose('carry')
             
             ###
             self.GB_count += 1
