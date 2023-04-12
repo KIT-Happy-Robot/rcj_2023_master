@@ -42,9 +42,16 @@ class GraspBag(smach.State):
         rospy.Subscriber("/left_right_recognition", String, self.LRCB)
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
+<<<<<<< HEAD
         self.grasp = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
         # self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+=======
+        self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
+>>>>>>> 7a354a48f2fe270b182bcf7c81ba450b30b52bae
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
+
+        self.eef = rospy.Subscriber('/servo/endeffector', Bool)
+
         self.base_control = BaseControl()
         # self.FB = FindBag()
         self.lrmsg = "NULL"
