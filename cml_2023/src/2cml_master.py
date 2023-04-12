@@ -41,8 +41,8 @@ class GraspBag(smach.State):
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
-
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
+        
         self.base_control = BaseControl()
         self.lrmsg = "NULL"
         self.front_laser_dist = 0.0

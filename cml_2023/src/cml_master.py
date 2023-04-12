@@ -43,8 +43,10 @@ class GraspBag(smach.State):
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp  = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
-        self.eef = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
+
+        self.eef = rospy.Subscriber('/servo/endeffector', Bool)
+
         self.base_control = BaseControl()
         self.FB = FindBag()
         self.lrmsg = "NULL"
