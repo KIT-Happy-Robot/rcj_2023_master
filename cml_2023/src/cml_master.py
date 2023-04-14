@@ -46,7 +46,7 @@ class GraspBag(smach.State):
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         
         # self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
-        self.eef = rospy.Subscriber('/servo/endeffector', Bool)
+        rospy.Subscriber('/servo/endeffector', Bool)
 
         self.base_control = BaseControl()
         # self.FB = FindBag()
