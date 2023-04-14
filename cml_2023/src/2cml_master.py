@@ -184,8 +184,7 @@ class Chaser(smach.State):      #timeup
             #print(self.cmd_sub)
             #print("nt = ",now_time)
             ####
-            # if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
-            if self.cmd_sub == 0.0:
+            if self.cmd_sub == 0.0 and self.find_msg == 'lost_stop':
                 #self.find_msg = 'lost_stop'
                 #self.start_time = time.time()
                 #rospy.loginfo('loststoped')
@@ -215,6 +214,7 @@ class Chaser(smach.State):      #timeup
                 ###追加
                 self.start_time = time.time()
                 self.cmd_count = 0
+                self.find_msg = 'lost_stop'
                 ###
                 
             elif self.cmd_count >= 30:
