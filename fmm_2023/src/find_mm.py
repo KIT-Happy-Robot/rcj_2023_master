@@ -115,13 +115,9 @@ class GetClose(smach.State):
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
             self.bc.rotateAngle(-10, 0, 0.5, 5)
-            for i in range(3):
-                result = self.coord_gen_srv().result
-                print(result)
-                if result:
-                    self.ap_srv(data = g_name)
-                else:
-                    self.bc.rotateAngle(-10, 0, 1.0, 5)
+            result = self.coord_gen_srv().result
+            print(result)
+            self.ap_srv(data = g_name)
         
         elif g_num == 2:
             self.head_pub.publish(0)
@@ -433,7 +429,7 @@ class Tell(smach.State):
         rospy.sleep(0.2)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(110, 0, 0.2, 5)
+        self.bc.rotateAngle(180, 0, 0.2, 5)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
         navi_result = self.navi_srv('Operator').result
