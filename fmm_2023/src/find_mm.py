@@ -98,11 +98,10 @@ class GetClose(smach.State):
             #0(水平)１(下に1°)-1(上に1°)
             self.head_pub.publish(0)
             rospy.sleep(1.0)
-            #self.bc.translateDist(1.0,0.2)
-            #rospy.sleep(1.0)
-            #self.bc.rotateAngle(-90,1.0)
-            #rospy.sleep(1.0)
-            #self.bc.rotateAngle(-5, 0, 0.5, 5)
+            rospy.set_param("/map_range/min_x", -2.5)
+            rospy.set_param("/map_range/max_x", 1.0)
+            rospy.set_param("/map_range/min_y", 3.0)
+            rospy.set_param("/map_range/max_y", 5.3)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = "human_0") #g_name
@@ -114,12 +113,14 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-30, 0, 0.5, 5)
+            self.bc.rotateAngle(-50, 0, 0.5, 5)
             rospy.sleep(1.0)
             self.bc.translateDist(0.5,0.2)
             
-            #rospy.set_param("/map_range/max_x",2.8)
-            #rospy.set_param("/map_range/min_y",1.5)
+            rospy.set_param("/map_range/min_x", -0.3)
+            rospy.set_param("/map_range/max_x", 1.4)
+            rospy.set_param("/map_range/min_y", 2.8)
+            rospy.set_param("/map_range/max_y", 4.6)
             result = self.coord_gen_srv().result
             print(result)
             self.ap_srv(data = "human_0")
@@ -132,10 +133,15 @@ class GetClose(smach.State):
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
             self.bc.translateDist(0.5,0.2)
-            self.bc.rotateAngle(-80, 0, 0.5, 5)
+            self.bc.rotateAngle(-90, 0, 0.5, 5)
+            rospy.set_param("/map_range/min_x", -0.8)
+            rospy.set_param("/map_range/max_x", 1.4)
+            rospy.set_param("/map_range/min_y", 1.4)
+            rospy.set_param("/map_range/max_y", 2.6)
+            
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = g_name) #g_name
+            self.ap_srv(data = "human_0") #g_name
 
         else:
             pass
@@ -170,13 +176,12 @@ class GetFeature(smach.State):
         # https://github.com/KIT-Happy-Robot/happymimi_voice/blob/master/happymimi_voice_common/src/get_feature_srv.py
         self.gf_srv= rospy.ServiceProxy('get_feature_srv', StrToStr)
         self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
-        self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
-        self.cloth_color_srv = rospy.ServiceProxy('/person_feature/cloth_color',SetStr)
+        #self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
         self.getold_srv = rospy.ServiceProxy('/person_feature/old', SetStr)
         self.getgender_srv = rospy.ServiceProxy('/person_feature/gender', SetStr)
         self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
         self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
-        self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
+        self.hair_color_srv = rospy.ServiceProxy('/person_feature/hair_color', SetStr)
         self.feature_srv = rospy.ServiceProxy('get_feature_srv', StrToStr)
         self.yes_no_srv = rospy.ServiceProxy('/yes_no', YesNo)
         
@@ -301,7 +306,7 @@ class GetFeature(smach.State):
             
     def getHairColor(self):
         self.hair_color = "null"
-        self.hair_color = self.hair_srv().result
+        self.hair_color = self.hair_color_srv().result
         if self.hair_color == '':
             return "none"
         else:
@@ -318,6 +323,7 @@ class GetFeature(smach.State):
     def getGlass(self):# わからんから適当
         #self.glass = "null"
         self.glass_result = self.glass_srv().result # T/F
+        print(self.glass_result)
         if self.glass_result:
             return 'wearing'
         else:
@@ -355,7 +361,8 @@ class GetFeature(smach.State):
         self.guest_name = self.getName()
         g_num = userdata.g_num_in
         #print (self.guest_name)
-        self.guest_loc = self.getLocInfo("human_" + str(g_num))
+        #self.guest_loc = self.getLocInfo("human_" + str(g_num))
+        self.guest_loc = self.getLocInfo("human_0")
         self.gn_sentence = str(self.guest_name) + " is near " + str(self.guest_loc)
         # 使用済みの特徴を使わないようにする
 
@@ -430,8 +437,8 @@ class Tell(smach.State):
         wave_srv("/fmm/move_operator")
         
         # 首の角度を０度に戻す
-        self.head_pub.publish(0)
-        rospy.sleep(0.2)
+        # self.head_pub.publish(0)
+        # rospy.sleep(0.5)
         
         # オペレーターへ自律移動
         self.bc.rotateAngle(180, 0, 0.2, 5)
