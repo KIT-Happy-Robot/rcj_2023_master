@@ -94,7 +94,7 @@ class GetClose(smach.State):
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
-        if g_num == 0:
+        if g_num == 2:
             #0(水平)１(下に1°)-1(上に1°)
             self.head_pub.publish(0)
             rospy.sleep(1.0)
@@ -127,7 +127,7 @@ class GetClose(smach.State):
             print(result)
             self.ap_srv(data = "human_0")
                 
-        elif g_num == 2:
+        elif g_num == 0:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)

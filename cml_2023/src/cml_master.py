@@ -43,11 +43,11 @@ class GraspBag(smach.State):
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
 
         self.grasp = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
-        self.eef = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+        #self.eef = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         
-        # self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
-        rospy.Subscriber('/servo/endeffector', Bool)
+        self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+        #rospy.Subscriber('/servo/endeffector', Bool)
 
         self.base_control = BaseControl()
         self.FB = FindBag()
@@ -142,7 +142,7 @@ class GraspBag(smach.State):
             rospy.sleep(0.5)
             self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
             rospy.sleep(0.5)
-            self.eef.publish(True)
+            self.eef_pub.publish(True)
             rospy.sleep(0.5)
             self.arm_pose('carry')
             ###
@@ -205,8 +205,7 @@ class Chaser(smach.State):      #timeup
             #print(self.cmd_sub)
             #print("nt = ",now_time)
             ####
-            # if self.cmd_sub == 0.0 and self.find_msg == 'NULL':
-            if self.cmd_sub == 0.0:
+            if self.cmd_sub == 0.0 and self.find_msg == 'lost_stop':
                 #self.find_msg = 'lost_stop'
                 #self.start_time = time.time()
                 #rospy.loginfo('loststoped')
@@ -232,10 +231,10 @@ class Chaser(smach.State):      #timeup
                 print(self.cmd_sub)
                 print("nt = ",now_time)
                 #self.find_msg = 'NULL'
-                #now_time = 0
                 ###追加
                 self.start_time = time.time()
                 self.cmd_count = 0
+                self.find_msg = 'lost_stop'
                 ###
                 
             elif self.cmd_count >= 30:
@@ -243,7 +242,6 @@ class Chaser(smach.State):      #timeup
 
             else: 
                 pass
-            
             ####
             
             ####
