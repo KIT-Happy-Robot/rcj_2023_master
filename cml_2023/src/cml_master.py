@@ -231,7 +231,6 @@ class Chaser(smach.State):      #timeup
                 print(self.cmd_sub)
                 print("nt = ",now_time)
                 #self.find_msg = 'NULL'
-                #now_time = 0
                 ###追加
                 self.start_time = time.time()
                 self.cmd_count = 0
