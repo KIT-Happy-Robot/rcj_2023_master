@@ -46,7 +46,7 @@ class GraspBag(smach.State):
         #self.eef = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         
-        # self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+        self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
         #rospy.Subscriber('/servo/endeffector', Bool)
 
         self.base_control = BaseControl()
@@ -142,7 +142,7 @@ class GraspBag(smach.State):
             rospy.sleep(0.5)
             self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
             rospy.sleep(0.5)
-            self.eef.publish(True)
+            self.eef_pub.publish(True)
             rospy.sleep(0.5)
             self.arm_pose('carry')
             ###
