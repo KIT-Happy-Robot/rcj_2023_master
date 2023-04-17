@@ -105,7 +105,7 @@ class GetClose(smach.State):
             #self.bc.rotateAngle(-5, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = g_name) #g_name
+            self.ap_srv(data = "human_0") #g_name
         
         elif g_num == 1:
             self.head_pub.publish(0)
@@ -114,11 +114,17 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.rotateAngle(-10, 0, 0.5, 5)
+            
+            self.bc.rotateAngle(-30, 0, 0.5, 5)
+            rospy.sleep(1.0)
+            self.bc.translateDist(0.5,0.2)
+            
+            #rospy.set_param("/map_range/max_x",2.8)
+            #rospy.set_param("/map_range/min_y",1.5)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = g_name)
-        
+            self.ap_srv(data = "human_0")
+                
         elif g_num == 2:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
@@ -130,7 +136,7 @@ class GetClose(smach.State):
             self.bc.rotateAngle(-80, 0, 0.5, 5)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = g_name) #g_name
+            self.ap_srv(data = "human_0") #g_name
 
         else:
             pass
@@ -364,8 +370,6 @@ class GetFeature(smach.State):
             #self.f2_sentence = self.getGlass() + "glass"
             self.f2_sentence = "Gender is " + self.getGender()
             print(self.f2_sentence)
-
-
             
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
@@ -432,7 +436,7 @@ class Tell(smach.State):
         self.bc.rotateAngle(180, 0, 0.2, 5)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
-        navi_result = self.navi_srv('Operator').result
+        navi_result = self.navi_srv('fmm').result
         rospy.sleep(0.2)
         #　首を上げる
         self.head_pub.publish(-20)
