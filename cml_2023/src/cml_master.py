@@ -44,6 +44,7 @@ class GraspBag(smach.State):
 
         self.grasp = rospy.ServiceProxy('/grasp_bag_server', GraspBagSrv)
         #self.eef = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+        self.arm_pose = rospy.ServiceProxy('/servo/arm', StrTrg)
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         
         self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
