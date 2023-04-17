@@ -132,7 +132,7 @@ class GetClose(smach.State):
             #rospy.sleep(1.0)
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
-            self.bc.translateDist(0.5,0.2)
+            #self.bc.translateDist(0.5,0.2)
             self.bc.rotateAngle(-90, 0, 0.5, 5)
             rospy.set_param("/map_range/min_x", -0.8)
             rospy.set_param("/map_range/max_x", 1.4)
