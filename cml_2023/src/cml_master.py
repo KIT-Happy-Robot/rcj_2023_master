@@ -22,13 +22,13 @@ from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSr
 #from actplan_executor.msg import APExecutorAction, APExecutorGoal
 #from find_bag.srv import FindBagSrv\
 
-# base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
-# sys.path.insert(0, base_path)
-# from base_control import BaseControl
+base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
+sys.path.insert(0, base_path)
+from base_control import BaseControl
 
-find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
-sys.path.insert(0, find_bag_path)
-from find_bag_server import FindBag
+# find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
+# sys.path.insert(0, find_bag_path)
+# from find_bag_server import FindBag
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
@@ -37,8 +37,8 @@ wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 class GraspBag(smach.State):
     def __init__(self):
         smach.State.__init__(self,
-                            outcomes = ['grasp_finish',                                 
-                                        'grasp_retry'])
+                            outcomes = ['grasp_finish'])                          
+                                       # 'grasp_retry'])
 
         rospy.Subscriber("/left_right_recognition", String, self.LRCB)
         self.dist = rospy.Subscriber('/scan', LaserScan, self.laserCB)
