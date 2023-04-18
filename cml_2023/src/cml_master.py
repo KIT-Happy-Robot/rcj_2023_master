@@ -26,7 +26,7 @@ base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, base_path)
 from base_control import BaseControl
 find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
-sys.path.insert(1, find_bag_path)
+sys.path.insert(0, find_bag_path)
 from find_bag_server import FindBag
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
@@ -47,7 +47,7 @@ class GraspBag(smach.State):
         self.arm_pose = rospy.ServiceProxy('/servo/arm', StrTrg)
         self.navi = rospy.ServiceProxy("/navi_location_server",NaviLocation)
         
-        #self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
+        self.eef_pub = rospy.Publisher('/servo/endeffector', Bool, queue_size=10)
         #rospy.Subscriber('/servo/endeffector', Bool)
 
         self.base_control = BaseControl()
