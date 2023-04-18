@@ -27,7 +27,7 @@ sys.path.insert(0, base_path)
 from base_control import BaseControl
 
 find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
-sys.path.insert(1, find_bag_path)
+sys.path.insert(0, find_bag_path)
 from find_bag_server import FindBag
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
