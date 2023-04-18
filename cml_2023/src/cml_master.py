@@ -25,9 +25,9 @@ from find_bag.srv import FindBagSrv, FindBagSrvResponse, GraspBagSrv, GraspBagSr
 base_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, base_path)
 from base_control import BaseControl
-# find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
-# sys.path.insert(0, find_bag_path)
-# from find_bag_server import FindBag
+find_bag_path = roslib.packages.get_pkg_dir('find_bag') + '/src/'
+sys.path.insert(1, find_bag_path)
+from find_bag_server import FindBag
 
 tts_srv = rospy.ServiceProxy('/tts', TTS)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
@@ -51,7 +51,7 @@ class GraspBag(smach.State):
         #rospy.Subscriber('/servo/endeffector', Bool)
 
         self.base_control = BaseControl()
-        #self.FB = FindBag()
+        self.FB = FindBag()
         self.lrmsg = "NULL"
         self.front_laser_dist = 0.0
         self.GB_count = 0
@@ -128,24 +128,24 @@ class GraspBag(smach.State):
             rospy.loginfo('Executing state: GRASP')
             rospy.sleep(0.5)
             ###追加
-            self.base_control.translateDist(-0.3)
-            self.base_control.rotateAngle(170, 0.3)
-            rospy.sleep(0.5)
-            self.navi('cml')
-            rospy.sleep(0.5)
+            # self.base_control.translateDist(-0.3)
+            # self.base_control.rotateAngle(170, 0.3)
+            # rospy.sleep(0.5)
+            # self.navi('cml')
+            # rospy.sleep(0.5)
             ###
             
             # 下がって、バッグの向きへ微調整
-            # self.base_control.translateDist(-0.3)
-            # self.sleep(1.0)
-            # dist_to_bag = self.FB.bagFocus('all', 100)
-            # self.base_control.rotateAngle(4.0, 1, 0.7, 20)
-            # rospy.sleep(0.5)
-            # self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
-            # rospy.sleep(0.5)
-            # self.eef_pub.publish(True)
-            # rospy.sleep(0.5)
-            # self.arm_pose('carry')
+            self.base_control.translateDist(-0.3)
+            self.sleep(1.0)
+            dist_to_bag = self.FB.bagFocus('all', 100)
+            self.base_control.rotateAngle(4.0, 1, 0.7, 20)
+            rospy.sleep(0.5)
+            self.base_control.translateDist(dist_to_bag - 0.08 , 0.1)
+            rospy.sleep(0.5)
+            self.eef_pub.publish(True)
+            rospy.sleep(0.5)
+            self.arm_pose('carry')
             ###
             self.GB_count += 1
             return 'grasp_retry'
