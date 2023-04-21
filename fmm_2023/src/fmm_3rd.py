@@ -94,7 +94,7 @@ class GetClose(smach.State):
 
         # g_numが0だったら、一人目の方を向いて座標を取得する→　接近→　名前を確認する→　特徴を取得
         # 　名前の確認では、音声会話から名前の特定をする
-        if g_num == 2:
+        if g_num == 0:
             #0(水平)１(下に1°)-1(上に1°)
             self.head_pub.publish(0)
             rospy.sleep(1.0)
@@ -104,7 +104,17 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 5.3)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0") #g_name
+            try:
+                result = self.ap_srv(data = "human_0").result #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
+
         
         elif g_num == 1:
             self.head_pub.publish(0)
@@ -125,9 +135,19 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 4.6)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0")
+            #self.ap_srv(data = "human_0")
+            try:
+                result = self.ap_srv(data = "human_0").result #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
                 
-        elif g_num == 0:
+        elif g_num == 2:
             self.head_pub.publish(0)
             rospy.sleep(1.0)
             #self.bc.translateDist(1.0,0.2)
@@ -143,7 +163,17 @@ class GetClose(smach.State):
             
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0") #g_name
+            #self.ap_srv(data = "human_0") #g_name
+            try:
+                result = self.ap_srv(data = "human_0").result #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
 
         else:
             pass
@@ -287,7 +317,7 @@ class GetFeature(smach.State):
     def getHight(self):
         self.head_pub.publish(0)
         # 全身を収めるために後ろへ下がる
-        self.bc.translateDist(-0.5,0.2)
+        self.bc.translateDist(-1.0,0.2)
         
         height = SetFloat()
         height = self.height_srv()
@@ -325,8 +355,10 @@ class GetFeature(smach.State):
     def getGlass(self):# わからんから適当
         #self.glass = "null"
         self.glass_result = self.glass_srv().result # T/F
+        self.glass_data = self.glass_srv().res_data
         print(self.glass_result)
-        if self.glass_result:
+        #if self.glass_result:
+        if self.glass_data == "Normal":
             return 'wearing'
         else:
             return "no wearing"
@@ -372,7 +404,8 @@ class GetFeature(smach.State):
             self.bc.translateDist(-0.4, 0.2)
 
             #self.f1_sentence = "ClothColor is " + self.getClothColor()
-            print('startglass')
+            print('startglass') 
+            
             self.f1_sentence = "Glass is " + self.getGlass()
             print(self.f1_sentence)
             #self.f2_sentence = self.getGlass() + "glass"
@@ -441,7 +474,7 @@ class Tell(smach.State):
         # rospy.sleep(0.5)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(180, 0, 0.2, 5)
+        self.bc.rotateAngle(180, 1, 0.7, 20)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
         navi_result = self.navi_srv('fmm').result
