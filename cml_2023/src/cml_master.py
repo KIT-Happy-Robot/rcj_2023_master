@@ -139,14 +139,12 @@ class GraspBag(smach.State):
             while not rospy.is_shutdown():
                 if self.right_count >= 5:
                     wave_srv("/cml/bag_left")
-                    #tts_srv("right")
                     rospy.loginfo('left')
                     self.grasp('left', [0.25, 0.4])
                     break
 
                 elif self.left_count >= 5:
                     wave_srv("/cml/bag_right")
-                    #tts_srv("left")
                     rospy.loginfo('right')
                     self.grasp('right', [0.25, 0.4])
                     break
@@ -171,25 +169,6 @@ class GraspBag(smach.State):
             # ###
             # self.GB_count += 1
             # return 'grasp_retry'
-
-        # elif self.front_laser_dist <= 0.2 and self.GB_count == 0:   #rotateAngle 引数四つのほうがいいかも
-        #     rospy.loginfo('Executing state: GRASP')
-        #     rospy.sleep(0.5)
-        #     print('retry')
-        #     ###追加
-        #     self.base_control.translateDist(-0.4)
-        #     if self.left_count >= 5:    #右
-        #         self.base_control.rotateAngle(20, 0, 0.5, 5)
-
-        #     elif self.right_count >= 5: #左
-        #         self.base_control.rotateAngle(-20, 0, 0.5, 5)
-            
-        #     self.base_control.translateDist(-0.9)
-        #     ###
-        #     self.GB_count += 1
-        #     return 'grasp_retry'
-
-        
 
         else:
             print("else")
