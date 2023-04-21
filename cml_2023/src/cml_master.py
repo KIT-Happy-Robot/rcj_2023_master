@@ -187,6 +187,7 @@ class Chaser(smach.State):      #timeup
         self.yesno = rospy.ServiceProxy('/yes_no', YesNo)
         self.arm = rospy.ServiceProxy('/servo/arm', StrTrg)
 
+        self.base_control = BaseControl()
         self.start_time = time.time()
         self.find_msg = 'NULL'
         self.cmd_sub = 0.0
@@ -221,7 +222,7 @@ class Chaser(smach.State):      #timeup
                     if answer:
                         self.chase.publish('stop')
                         # self.base_control.rotateAngle(0, 0)
-                        # self.base_control.translateDist(-0.3)
+                        self.base_control.translateDist(-0.3)
                         wave_srv('/cml/give_bag')
                         self.arm('give')
                         wave_srv('/cml/return_start')
