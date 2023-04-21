@@ -135,7 +135,7 @@ class GetClose(smach.State):
             #self.bc.rotateAngle(-90,1.0)
             #rospy.sleep(1.0)
             #self.bc.translateDist(0.5,0.2)
-            self.bc.rotateAngle(-105, 0, 0.5, 5)
+            self.bc.rotateAngle(-100, 0, 0.5, 5)
             rospy.set_param("/map_range/min_x", -0.8)
             rospy.set_param("/map_range/max_x", 1.4)
             rospy.set_param("/map_range/min_y", 1.4)
@@ -325,8 +325,10 @@ class GetFeature(smach.State):
     def getGlass(self):# わからんから適当
         #self.glass = "null"
         self.glass_result = self.glass_srv().result # T/F
+        self.glass_data = self.glass_srv().res_data
         print(self.glass_result)
-        if self.glass_result:
+        #if self.glass_result:
+        if self.glass_data == "Normal":
             return 'wearing'
         else:
             return "no wearing"
@@ -372,7 +374,8 @@ class GetFeature(smach.State):
             self.bc.translateDist(-0.4, 0.2)
 
             #self.f1_sentence = "ClothColor is " + self.getClothColor()
-            print('startglass')
+            print('startglass') 
+            
             self.f1_sentence = "Glass is " + self.getGlass()
             print(self.f1_sentence)
             #self.f2_sentence = self.getGlass() + "glass"
@@ -441,7 +444,7 @@ class Tell(smach.State):
         # rospy.sleep(0.5)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(180, 0, 0.2, 5)
+        self.bc.rotateAngle(180, 1, 0.7, 20)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
         navi_result = self.navi_srv('fmm').result
