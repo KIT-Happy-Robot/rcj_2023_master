@@ -315,9 +315,10 @@ class GetFeature(smach.State):
         return self.sex
         
     def getHight(self):
-        self.head_pub.publish(0)
+        self.head_pub.publish(20)
         # 全身を収めるために後ろへ下がる
-        self.bc.translateDist(-1.0,0.2)
+        self.bc.translateDist(-1.5,0.2)
+        rospy.sleep(0.5)
         
         height = SetFloat()
         height = self.height_srv()
