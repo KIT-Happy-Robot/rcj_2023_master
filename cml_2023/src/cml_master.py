@@ -229,32 +229,33 @@ class Chaser(smach.State):      #timeup
             #print(self.cmd_sub)
             #print("nt = ",now_time)
             ####
-            if self.cmd_sub == 0.0 and self.find_msg == 'lost':
-                #self.find_msg = 'lost_stop'
-                #self.start_time = time.time()
-                #rospy.loginfo('loststoped')
-                print("0.0 cmd = ",self.cmd_sub)
-                print("0.0 nt = ",now_time)
+            if self.cmd_sub == 0.0:
                 self.cmd_count += 1
                 print("cmd_count = ",self.cmd_count)
+                print("0.0 cmd = ",self.cmd_sub)
+                if self.find_msg == 'lost':
+                    #self.find_msg = 'lost_stop'
+                    #self.start_time = time.time()
+                    #rospy.loginfo('loststoped')
+                    print("0.0 nt = ",now_time)
 
-                if now_time >= 5.0:
-                    wave_srv("/cml/car_question")
-                    rospy.loginfo('yes_or_no')
-                    answer = self.yesno().result
-                    if answer:
-                        self.chase.publish('stop')
-                        # self.base_control.rotateAngle(0, 0)
-                        # self.base_control.translateDist(-0.3)
-                        wave_srv('/cml/give_bag')
-                        
-                        self.arm('give')
-                        wave_srv('/cml/return_start')
-                        return 'chaser_finish'
-                    else:
-                        wave_srv("/cml/follow_cont")
-                        
-                elif self.cmd_count >= 20:
+                    if now_time >= 5.0:
+                        wave_srv("/cml/car_question")
+                        rospy.loginfo('yes_or_no')
+                        answer = self.yesno().result
+                        if answer:
+                            self.chase.publish('stop')
+                            # self.base_control.rotateAngle(0, 0)
+                            # self.base_control.translateDist(-0.3)
+                            wave_srv('/cml/give_bag')
+                            
+                            self.arm('give')
+                            wave_srv('/cml/return_start')
+                            return 'chaser_finish'
+                        else:
+                            wave_srv("/cml/follow_cont")
+                            
+                elif self.cmd_count >= 70:
                     wave_srv("/cml/car_question")
                     rospy.loginfo('yes_or_no')
                     answer = self.yesno().result
