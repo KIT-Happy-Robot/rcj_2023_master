@@ -42,6 +42,20 @@ sys.path.insert(0,happymimi_voice_path)
 from happymimi_nlp import sentence_analysis as se
 from happymimi_nlp import gender_judgement_from_name as GetGender
 import pickle 
+# from PIL import Image
+# import requests
+# from transformers import CLIPProcessor, CLIPModel
+# #モデルの読み込み
+# model = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+# processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14") 
+# #ROSやCV2の用意
+# import rospy
+# import cv2
+# from sensor_msgs.msg import Image
+# from cv_bridge import CvBridge
+# from happymimi_msgs.srv import SetStr, SetStrResponse
+from happymimi_recognition_msgs.srv import Clip, ClipResponse
+
 
 file_path = roslib.packages.get_pkg_dir('happymimi_teleop') + '/src/'
 sys.path.insert(0, file_path)
@@ -102,15 +116,9 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_x", 1.0)
             rospy.set_param("/map_range/min_y", 3.0)
             rospy.set_param("/map_range/max_y", 5.3)
+            rospy.sleep(1.5)
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            else:
-                pass
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
@@ -140,14 +148,9 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_x", 1.4)
             rospy.set_param("/map_range/min_y", 2.8)
             rospy.set_param("/map_range/max_y", 4.6)
+            rospy.sleep(1.5)
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            #self.ap_srv(data = "human_0")
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
@@ -169,18 +172,12 @@ class GetClose(smach.State):
             #self.bc.translateDist(0.5,0.2)
             self.bc.rotateAngle(-100, 0, 0.5, 5)
             rospy.set_param("/map_range/min_x", -0.8)
-            rospy.set_param("/map_range/max_x", 1.4)
+            rospy.set_param("/map_range/max_x", 1.6)
             rospy.set_param("/map_range/min_y", 1.4)
             rospy.set_param("/map_range/max_y", 2.6)
-            
+            rospy.sleep(1.5)
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            #self.ap_srv(data = "human_0") #g_name
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
@@ -224,15 +221,16 @@ class GetFeature(smach.State):
         # Features
         # https://github.com/KIT-Happy-Robot/happymimi_voice/blob/master/happymimi_voice_common/src/get_feature_srv.py
         self.gf_srv= rospy.ServiceProxy('get_feature_srv', StrToStr)
-        self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
+        #self.glass_srv = rospy.ServiceProxy('/person_feature/glass', StrToStr)
         #self.height_srv = rospy.ServiceProxy('/person_feature/height',SetFloat)
         self.getold_srv = rospy.ServiceProxy('/person_feature/old', SetStr)
-        self.getgender_srv = rospy.ServiceProxy('/person_feature/gender', SetStr)
-        self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
-        self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
-        self.hair_color_srv = rospy.ServiceProxy('/person_feature/hair_color', SetStr)
+        #self.getgender_srv = rospy.ServiceProxy('/person_feature/gender', SetStr)
+        #self.height_srv = rospy.ServiceProxy('/person_feature/height_estimation', SetFloat)
+        #self.cloth_srv  = rospy.ServiceProxy('/person_feature/cloth_color', SetStr)
+        #self.hair_color_srv = rospy.ServiceProxy('/person_feature/hair_color', SetStr)
         self.feature_srv = rospy.ServiceProxy('get_feature_srv', StrToStr)
         self.yes_no_srv = rospy.ServiceProxy('/yes_no', YesNo)
+        self.per_fea_srv = rospy.ServiceProxy('/person_feature/gpt', Clip)
         
         self.head_pub = rospy.Publisher('/servo/head', Float64, queue_size = 1)
 
@@ -318,68 +316,68 @@ class GetFeature(smach.State):
         else:
             return "so old!!" 
 
-    # https://github.com/KIT-Happy-Robot/rcj_2022_master/blob/develop/find_my_mates2022/src/fmmmod.py
-    def getGender(self, msg=[""]):
-        self.sex = "null"
-        res = self.getgender_srv()
-        if res.result == "":
-            #self.sex=res.result_data 
-            self.sex = "null"
-        else:
-            self.sex = res.result
-        tts_srv("You are " + self.sex)
-        rospy.loginfo(self.sex)
-        return self.sex
+    # # https://github.com/KIT-Happy-Robot/rcj_2022_master/blob/develop/find_my_mates2022/src/fmmmod.py
+    # def getGender(self, msg=[""]):
+    #     self.sex = "null"
+    #     res = self.getgender_srv()
+    #     if res.result == "":
+    #         #self.sex=res.result_data 
+    #         self.sex = "null"
+    #     else:
+    #         self.sex = res.result
+    #     tts_srv("You are " + self.sex)
+    #     rospy.loginfo(self.sex)
+    #     return self.sex
         
-    def getHight(self):
-        self.head_pub.publish(0)
-        # 全身を収めるために後ろへ下がる
-        self.bc.translateDist(-1.5,0.2)
-        self.head_pub.publish(15)
+    # def getHight(self):
+    #     self.head_pub.publish(0)
+    #     # 全身を収めるために後ろへ下がる
+    #     self.bc.translateDist(-1.5,0.2)
+    #     self.head_pub.publish(15)
         
-        height = SetFloat()
-        height = self.height_srv()
+    #     height = SetFloat()
+    #     height = self.height_srv()
         
-        if height.data == -1:
-            return False
-        else:
-            self.height = str(round(height.data))
-            return self.height
+    #     if height.data == -1:
+    #         return False
+    #     else:
+    #         self.height = str(round(height.data))
+    #         return self.height
             
-    def getClothColor(self):
-        self.cloth_color = "null"
-        self.cloth_color = self.cloth_srv().result
-        if self.cloth_color == '':
-            return "none"
-        else:
-            return self.cloth_color
+    # def getClothColor(self):
+    #     self.cloth_color = "null"
+    #     self.cloth_color = self.cloth_srv().result
+    #     if self.cloth_color == '':
+    #         return "none"
+    #     else:
+    #         return self.cloth_color
             
-    def getHairColor(self):
-        self.hair_color = "null"
-        self.hair_color = self.hair_color_srv().result
-        if self.hair_color == '':
-            return "none"
-        else:
-            return self.hair_color
+    # def getHairColor(self):
+    #     self.hair_color = "null"
+    #     self.hair_color = self.hair_color_srv().result
+    #     if self.hair_color == '':
+    #         return "none"
+    #     else:
+    #         return self.hair_color
             
-    def getSkinColor(self):
-        self.skin_color = "null"
-        self.skin_color =  self.skin_srv().result
-        if self.skin_color == '':
-            return "none"
-        else:
-            return self.skin_color
+    # def getSkinColor(self):
+    #     self.skin_color = "null"
+    #     self.skin_color =  self.skin_srv().result
+    #     if self.skin_color == '':
+    #         return "none"
+    #     else:
+    #         return self.skin_color
             
-    def getGlass(self):# わからんから適当
-        #self.glass = "null"
-        self.glass_result = self.glass_srv().result # T/F
-        self.glass_data = self.glass_srv().res_data
-        print(self.glass_result)
-        #if self.glass_result:
-        if self.glass_data == "Normal":
-            return 'wearing'
-        else:
-            return "no wearing"
+    # def getGlass(self):# わからんから適当
+    #     #self.glass = "null"
+    #     self.glass_result = self.glass_srv().result # T/F
+    #     self.glass_data = self.glass_srv().res_data
+    #     print(self.glass_result)
+    #     #if self.glass_result:
+    #     if self.glass_data == "Normal":
+    #         return 'wearing'
+    #     else:
+    #         return "no wearing"
 
     def getLocInfo(self, target_name):
         self.loc_name = "null"
@@ -424,27 +422,32 @@ class GetFeature(smach.State):
             #self.f1_sentence = "ClothColor is " + self.getClothColor()
             print('startglass') 
             
-            self.f1_sentence = "Glass is " + self.getGlass()
+            # self.f1_sentence = "Glass is " + self.getGlass()
+            # print(self.f1_sentence)
+            # #self.f2_sentence = self.getGlass() + "glass"
+            # self.f2_sentence = "Gender is " + self.getGender()
+            # print(self.f2_sentence)
+            self.f1_sentence = str(self.per_fea_srv("glass"))
             print(self.f1_sentence)
-            #self.f2_sentence = self.getGlass() + "glass"
-            self.f2_sentence = "Gender is " + self.getGender()
+            self.f2_sentence = str(self.per_fea_srv("gender"))
             print(self.f2_sentence)
+            
             
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
             self.bc.translateDist(-0.4, 0.2)
 
-            self.f1_sentence = "Age is " + self.getAge()
-            self.f2_sentence = "ClothColor is " + self.getClothColor()
+            self.f1_sentence = str("Age is" + self.getAge())
+            self.f2_sentence = str(self.per_fea_srv("cloth"))
             
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
             self.bc.translateDist(-0.4, 0.2)
 
-            self.f1_sentence = "HairColor is " + self.getHairColor()
+            self.f1_sentence = str(self.per_fea_srv("hair"))
             #glassのリターン変えたほうがいいかも
             #self.f2_sentence = "Age is " + self.getAge()
-            self.f2_sentence = "Hight is" + self.getHight()
+            self.f2_sentence = str(self.per_fea_srv("pants"))
         else:
             return 'get_feature_finish'
         # 各ゲストの特徴を保存

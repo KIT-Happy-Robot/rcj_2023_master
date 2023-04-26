@@ -236,6 +236,7 @@ class Chaser(smach.State):      #timeup
                 print("0.0 cmd = ",self.cmd_sub)
                 print("0.0 nt = ",now_time)
                 self.cmd_count += 1
+                print("cmd_count = ",self.cmd_count)
 
                 if now_time >= 5.0:
                     wave_srv("/cml/car_question")
