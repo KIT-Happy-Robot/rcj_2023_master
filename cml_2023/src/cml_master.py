@@ -254,8 +254,21 @@ class Chaser(smach.State):      #timeup
                     else:
                         wave_srv("/cml/follow_cont")
                         
-                elif self.cmd_count >= 70:
-                    return 'chaser_finish'
+                elif self.cmd_count >= 20:
+                    wave_srv("/cml/car_question")
+                    rospy.loginfo('yes_or_no')
+                    answer = self.yesno().result
+                    if answer:
+                        self.chase.publish('stop')
+                        # self.base_control.rotateAngle(0, 0)
+                        # self.base_control.translateDist(-0.3)
+                        wave_srv('/cml/give_bag')
+                        
+                        self.arm('give')
+                        wave_srv('/cml/return_start')
+                        return 'chaser_finish'
+                    else:
+                        wave_srv("/cml/follow_cont")
 
             elif self.cmd_sub != 0.0:
                 print("cmd = ",self.cmd_sub)
