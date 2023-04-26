@@ -253,6 +253,9 @@ class Chaser(smach.State):      #timeup
                         return 'chaser_finish'
                     else:
                         wave_srv("/cml/follow_cont")
+                        
+                elif self.cmd_count >= 70:
+                    return 'chaser_finish'
 
             elif self.cmd_sub != 0.0:
                 print("cmd = ",self.cmd_sub)
@@ -264,8 +267,7 @@ class Chaser(smach.State):      #timeup
                 self.find_msg = 'lost'
                 ###
                 
-            elif self.cmd_count >= 30:
-                return 'chaser_finish'
+            
 
             else: 
                 pass
