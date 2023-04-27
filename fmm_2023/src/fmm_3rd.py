@@ -417,7 +417,7 @@ class GetFeature(smach.State):
         # 使用済みの特徴を使わないようにする
 
         if g_num == 0:
-            self.bc.translateDist(-0.4, 0.2)
+            #self.bc.translateDist(-0.4, 0.2)
 
             #self.f1_sentence = "ClothColor is " + self.getClothColor()
             print('startglass') 
@@ -428,25 +428,24 @@ class GetFeature(smach.State):
             # self.f2_sentence = "Gender is " + self.getGender()
             # print(self.f2_sentence)
             self.f1_sentence = str(self.per_fea_srv("glass"))
-            print(self.f1_sentence)
             self.f2_sentence = str(self.per_fea_srv("gender"))
-            print(self.f2_sentence)
             
             
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
-            self.bc.translateDist(-0.4, 0.2)
+            #self.bc.translateDist(-0.4, 0.2)
 
             self.f1_sentence = str("Age is" + self.getAge())
-            self.f2_sentence = str(self.per_fea_srv("cloth"))
+            self.f2_sentence = str(self.per_fea_srv("hair"))
             
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
             self.bc.translateDist(-0.4, 0.2)
 
-            self.f1_sentence = str(self.per_fea_srv("hair"))
+            self.f1_sentence = str(self.per_fea_srv("cloth"))
             #glassのリターン変えたほうがいいかも
             #self.f2_sentence = "Age is " + self.getAge()
+            self.head_pub.publish(15)
             self.f2_sentence = str(self.per_fea_srv("pants"))
         else:
             return 'get_feature_finish'
