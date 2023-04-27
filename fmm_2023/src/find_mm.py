@@ -104,7 +104,24 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 5.3)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0") #g_name
+            if result == False:
+                while True:
+                    if result == False:
+                        result = self.coord_gen_srv().result
+                        print(result)
+            else:
+                pass
+            try:
+                result = self.ap_srv(data = "human_0").result #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
+
         
         elif g_num == 1:
             self.head_pub.publish(0)
@@ -125,7 +142,27 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 4.6)
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0")
+            if result == False:
+                while True:
+                    if result == False:
+                        result = self.coord_gen_srv().result
+                        print(result)
+            #self.ap_srv(data = "human_0")
+            try:
+                result = self.ap_srv(data = "human_0").result #g_nameif result == False:
+                while True:
+                    if result == False:
+                        result = self.coord_gen_srv().result
+                        print(result)
+            #self.ap_srv(data = "human_0") #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
                 
         elif g_num == 2:
             self.head_pub.publish(0)
@@ -143,7 +180,22 @@ class GetClose(smach.State):
             
             result = self.coord_gen_srv().result
             print(result)
-            self.ap_srv(data = "human_0") #g_name
+            if result == False:
+                while True:
+                    if result == False:
+                        result = self.coord_gen_srv().result
+                        print(result)
+            #self.ap_srv(data = "human_0") #g_name
+            try:
+                result = self.ap_srv(data = "human_0").result #g_name
+                print(result)
+            except KeyError:
+                while True:
+                    if result == False:
+                        result = self.ap_srv(data = "human_0").result #g_name
+                        print(result)
+                    else:
+                        break
 
         else:
             pass
@@ -287,7 +339,8 @@ class GetFeature(smach.State):
     def getHight(self):
         self.head_pub.publish(0)
         # 全身を収めるために後ろへ下がる
-        self.bc.translateDist(-0.5,0.2)
+        self.bc.translateDist(-1.5,0.2)
+        self.head_pub.publish(15)
         
         height = SetFloat()
         height = self.height_srv()
