@@ -177,17 +177,21 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 2.6)
             rospy.sleep(1.5)
             result = self.coord_gen_srv().result
+            rospy.sleep(1.5)
             print(result)
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
-                print(result)
-            except KeyError:
-                while True:
-                    if result == False:
-                        result = self.ap_srv(data = "human_0").result #g_name
-                        print(result)
-                    else:
-                        break
+                #print(result)
+            except KeyError as e:
+                print(e)
+            except :
+                pass
+                # while True:
+                #     if result == False:
+                #         result = self.ap_srv(data = "human_0").result #g_name
+                #         print(result)
+                #     else:
+                #         break
 
         else:
             pass
@@ -427,25 +431,34 @@ class GetFeature(smach.State):
             # #self.f2_sentence = self.getGlass() + "glass"
             # self.f2_sentence = "Gender is " + self.getGender()
             # print(self.f2_sentence)
+            #self.bc.translateDist(0.3, 0.2)
+            #self.head_pub.publish(-40)
+            rospy.sleep(1.0)
             self.f1_sentence = str(self.per_fea_srv("glass"))
+            rospy.sleep(1.0)
             self.f2_sentence = str(self.per_fea_srv("gender"))
             
             
         # g_numが1だったら、2人目の方を～～
         elif g_num == 1:
-            #self.bc.translateDist(-0.4, 0.2)
-
+            self.bc.translateDist(-0.2, 0.2)
+            #self.head_pub.publish()
+            rospy.sleep(1.0)
             self.f1_sentence = str("Age is" + self.getAge())
+            rospy.sleep(1.0)
             self.f2_sentence = str(self.per_fea_srv("hair"))
             
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
-            self.bc.translateDist(-0.4, 0.2)
-
+            self.bc.translateDist(-0.2, 0.2)
+            self.head_pub.publish(0)
+            rospy.sleep(1.0)
             self.f1_sentence = str(self.per_fea_srv("cloth"))
+            rospy.sleep(1.0)
             #glassのリターン変えたほうがいいかも
             #self.f2_sentence = "Age is " + self.getAge()
-            self.head_pub.publish(15)
+            self.head_pub.publish(25)
+            rospy.sleep(1.0)
             self.f2_sentence = str(self.per_fea_srv("pants"))
         else:
             return 'get_feature_finish'
@@ -494,7 +507,7 @@ class Tell(smach.State):
         # rospy.sleep(0.5)
         
         # オペレーターへ自律移動
-        self.bc.rotateAngle(180, 1, 0.7, 20)
+        self.bc.rotateAngle(180, 1, 0.7, 5)
         rospy.sleep(0.5)
         #self.navi_srv('operator')
         navi_result = self.navi_srv('fmm').result
