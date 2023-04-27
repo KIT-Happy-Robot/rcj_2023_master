@@ -104,13 +104,6 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 5.3)
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            else:
-                pass
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
@@ -142,12 +135,6 @@ class GetClose(smach.State):
             rospy.set_param("/map_range/max_y", 4.6)
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            #self.ap_srv(data = "human_0")
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
@@ -175,12 +162,6 @@ class GetClose(smach.State):
             
             result = self.coord_gen_srv().result
             print(result)
-            if result == False:
-                while True:
-                    if result == False:
-                        result = self.coord_gen_srv().result
-                        print(result)
-            #self.ap_srv(data = "human_0") #g_name
             try:
                 result = self.ap_srv(data = "human_0").result #g_name
                 print(result)
