@@ -434,9 +434,11 @@ class GetFeature(smach.State):
             #self.bc.translateDist(0.3, 0.2)
             #self.head_pub.publish(-40)
             rospy.sleep(1.0)
-            self.f1_sentence = str(self.per_fea_srv("glass"))
+            a = str(self.per_fea_srv("glass"))
+            self.f1_sentence = a.replace("result: a photo of ", "")
             rospy.sleep(1.0)
-            self.f2_sentence = str(self.per_fea_srv("gender"))
+            b = str(self.per_fea_srv("gender"))
+            self.f1_sentence = a.replace("result: a photo of ", "")
             
             
         # g_numが1だったら、2人目の方を～～
@@ -444,9 +446,11 @@ class GetFeature(smach.State):
             self.bc.translateDist(-0.2, 0.2)
             #self.head_pub.publish()
             rospy.sleep(1.0)
+            # self.f1_sentence = str("Age is" + self.getAge())
             self.f1_sentence = str("Age is" + self.getAge())
             rospy.sleep(1.0)
-            self.f2_sentence = str(self.per_fea_srv("hair"))
+            b = str(self.per_fea_srv("hair"))
+            self.f2_sentence = b.replace("result: a photo of", "")
             
         # g_numが2だったら、3人目の方を～～
         elif g_num == 2:
