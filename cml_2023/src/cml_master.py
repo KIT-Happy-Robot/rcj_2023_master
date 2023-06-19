@@ -30,7 +30,7 @@ from base_control import BaseControl
 # sys.path.insert(0, find_bag_path)
 # from find_bag_server import FindBag
 
-tts_srv = rospy.ServiceProxy('/tts', TTS)
+tts_srv = rospy.ServiceProxy('/tts', StrTrg)
 wave_srv = rospy.ServiceProxy('/waveplay_srv', StrTrg)
 
 
